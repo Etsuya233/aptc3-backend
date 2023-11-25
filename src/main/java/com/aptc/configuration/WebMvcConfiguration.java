@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import java.util.List;
@@ -30,4 +31,13 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 		converters.add(0, converter);
 	}
 
+	@Override
+	public void addCorsMappings(CorsRegistry registry) {
+		registry.addMapping("/**")
+				.allowedOrigins("*") // 允许任何来源
+				.allowedMethods("*") // 允许任何HTTP方法
+				.allowedHeaders("*") // 允许任何请求头
+				.allowCredentials(false) // 不支持携带身份验证信息
+				.maxAge(3600); // 预检请求的缓存时间
+	}
 }

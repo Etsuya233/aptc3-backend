@@ -6,9 +6,9 @@ spring:
 
 ety:
   jwt:
-    admin-secret-key: etyaptc
+    admin-secret-key: etyaptcetyaptcetyaptcetyaptcetyaptcetyaptcetyaptcetyaptc
     admin-ttl: 7200000
     admin-token-name: token
-    user-secret-key: etyaptc
+    user-secret-key: etyaptcetyaptcetyaptcetyaptcetyaptcetyaptcetyaptcetyaptc
     user-ttl: 7200000
     user-token-name: authentication
