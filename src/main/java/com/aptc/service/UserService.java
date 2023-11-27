@@ -5,4 +5,7 @@ import com.aptc.pojo.vo.UserLoginVO;
 
 public interface UserService {
 	UserLoginVO login(UserLoginDTO userLoginDTO);
+
+	UserLoginVO getCurrent();
+
 }

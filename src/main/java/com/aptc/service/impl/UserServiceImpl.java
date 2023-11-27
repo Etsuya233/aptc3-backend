@@ -7,6 +7,7 @@ import com.aptc.pojo.User;
 import com.aptc.pojo.dto.UserLoginDTO;
 import com.aptc.pojo.vo.UserLoginVO;
 import com.aptc.service.UserService;
+import com.aptc.utils.BaseContext;
 import com.aptc.utils.Constants;
 import com.aptc.utils.JwtUtils;
 import org.springframework.beans.BeanUtils;
@@ -42,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
 		//创建JWT令牌
 		Map<String, String> claims = new HashMap<>();
-		claims.put(String.valueOf(Constants.USER_ID), user.getUsername());
+		claims.put("currentID", String.valueOf(user.getUid()));
 
 		String token = JwtUtils.createJwt(jwtProperties.getUserKeyObj(), jwtProperties.getUserTtl(), claims);
 
@@ -50,6 +51,14 @@ public class UserServiceImpl implements UserService {
 		BeanUtils.copyProperties(user, userLoginVO);
 		userLoginVO.setToken(token);
 
+		return userLoginVO;
+	}
+
+	@Override
+	public UserLoginVO getCurrent() {
+		User user = userMapper.getUserByUid(BaseContext.getCurrentId());
+		UserLoginVO userLoginVO = new UserLoginVO();
+		BeanUtils.copyProperties(user, userLoginVO);
 		return userLoginVO;
 	}
 }

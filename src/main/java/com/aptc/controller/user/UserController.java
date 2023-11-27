@@ -5,10 +5,7 @@ import com.aptc.pojo.vo.UserLoginVO;
 import com.aptc.result.Result;
 import com.aptc.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController()
 @RequestMapping("/user")
@@ -28,5 +25,12 @@ public class UserController {
 		return Result.success(userLoginVO);
 	}
 
+	@GetMapping("/current")
+	public Result<UserLoginVO> current(){
+		UserLoginVO userLoginVO = userService.getCurrent();
+		return Result.success(userLoginVO);
+	}
+
+	
 
 }

@@ -9,4 +9,7 @@ public class User {
 	private String username;
 	private String password;
 	private Integer status;
+	private Double ptt;
+	private Double pttB30;
+	private Double pttR10;
 }

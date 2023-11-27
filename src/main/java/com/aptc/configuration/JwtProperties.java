@@ -19,12 +19,10 @@ public class JwtProperties {
 	private String adminSecretKey;
 	private SecretKey adminKeyObj;
 	private long adminTtl;
-	private String adminTokenName;
 
 	private String userSecretKey;
 	private SecretKey userKeyObj;
 	private long userTtl;
-	private String userTokenName; //前端的Header的哪个东西存了Token
 
 	public void setAdminSecretKey(String adminSecretKey) {
 		this.adminSecretKey = adminSecretKey;

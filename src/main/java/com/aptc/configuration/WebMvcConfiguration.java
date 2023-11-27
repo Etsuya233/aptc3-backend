@@ -1,11 +1,13 @@
 package com.aptc.configuration;
 
 import com.aptc.etc.JacksonObjectMapper;
+import com.aptc.intercepter.JwtUserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import java.util.List;
@@ -14,6 +16,11 @@ import java.util.List;
 @Configuration
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
+	private JwtUserInterceptor jwtUserInterceptor;
+
+	public WebMvcConfiguration(JwtUserInterceptor jwtUserInterceptor) {
+		this.jwtUserInterceptor = jwtUserInterceptor;
+	}
 
 	/**
 	 * 消息转化器
@@ -39,5 +46,13 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 				.allowedHeaders("*") // 允许任何请求头
 				.allowCredentials(false) // 不支持携带身份验证信息
 				.maxAge(3600); // 预检请求的缓存时间
+	}
+
+	@Override
+	protected void addInterceptors(InterceptorRegistry registry) {
+		log.info("开始注册拦截器");
+		registry.addInterceptor(jwtUserInterceptor)
+				.addPathPatterns("/user/**")
+				.excludePathPatterns("/user/login");
 	}
 }

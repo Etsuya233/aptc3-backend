@@ -30,6 +30,7 @@ public class JwtUserInterceptor implements HandlerInterceptor {
 			return true;
 		}
 
+
 		/**
 		 * 参数中的handler参数是什么？
 		 * 在 Spring 框架中，handler 通常指的是处理请求的对象，它可以是一个控制器（Controller）类中的处理方法。
@@ -37,12 +38,14 @@ public class JwtUserInterceptor implements HandlerInterceptor {
 		 * DispatcherServlet 会根据请求的 URL 查找匹配的处理方法（handler）。这个处理方法就是 handler。
 		 */
 
-		String token = request.getHeader(jwtProperties.getUserTokenName());
+		String token = "";
+		token = request.getHeader("Authorization");
+		if(token != null) token = token.substring(7);//去掉“Bearer ”
 
 		try{
-			log.info("当前用户登录Token：{}", token);
+			log.info("jwt校验：{}", token);
 			Claims claims = JwtUtils.parse(jwtProperties.getUserKeyObj(), token);
-			String userIdStr = claims.get(Constants.USER_ID).toString();
+			String userIdStr = (String) claims.get("currentID");
 			int userId = Integer.parseInt(userIdStr);
 			log.info("当前用户ID：{}", userId);
 
