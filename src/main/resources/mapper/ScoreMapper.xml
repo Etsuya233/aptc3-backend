@@ -3,9 +3,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.aptc.mapper.ScoreMapper">
 
-    <select id="scorePageQuery" resultType="com.aptc.pojo.vo.ScoreListUser">
-        select t_song.sname, t_score.* from t_score
-        left join t_song on t_song.sid = t_score.sid
-        where t_score.uid = #{uid}
+    <select id="userScorePageQuery" resultType="com.aptc.pojo.vo.UserScoreVO">
+        select ts.sname, ts.prs, ts.pst, ts.ftr, ts.byd, tsc.*
+        from t_song ts, t_score tsc
+        where tsc.uid = #{param1} and tsc.sid = ts.sid
     </select>
 </mapper>

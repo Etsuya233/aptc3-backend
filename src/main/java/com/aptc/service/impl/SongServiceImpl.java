@@ -1,7 +1,6 @@
 package com.aptc.service.impl;
 
 import com.aptc.mapper.ScoreMapper;
-import com.aptc.pojo.vo.ScoreListUser;
 import com.aptc.result.PageResult;
 import com.aptc.service.SongService;
 import com.aptc.utils.BaseContext;
@@ -19,18 +18,5 @@ public class SongServiceImpl implements SongService {
 		this.scoreMapper = scoreMapper;
 	}
 
-	@Override
-	public PageResult queryScore(Integer pageNum, Integer pageSize) {
-		Integer uid = BaseContext.getCurrentId();
 
-		PageHelper.startPage(pageNum, pageSize);
-		List<ScoreListUser> scoreListUsers = scoreMapper.scorePageQuery(uid);
-		PageInfo<ScoreListUser> pageInfo = PageInfo.of(scoreListUsers);
-
-		PageResult pageResult = new PageResult();
-		pageResult.setTotal((int) pageInfo.getTotal());
-		pageResult.setRecords(scoreListUsers);
-
-		return pageResult;
-	}
 }

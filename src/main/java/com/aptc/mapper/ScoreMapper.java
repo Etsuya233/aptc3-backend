@@ -1,6 +1,6 @@
 package com.aptc.mapper;
 
-import com.aptc.pojo.vo.ScoreListUser;
+import com.aptc.pojo.vo.UserScoreVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -8,5 +8,6 @@ import java.util.List;
 @Mapper
 public interface ScoreMapper {
 
-	public List<ScoreListUser> scorePageQuery(Integer uid);
+	List<UserScoreVO> userScorePageQuery(Integer uid, Integer pageNum, Integer pageSize);
+
 }
