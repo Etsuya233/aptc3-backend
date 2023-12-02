@@ -6,6 +6,10 @@
     <select id="userScorePageQuery" resultType="com.aptc.pojo.vo.UserScoreVO">
         select ts.sname, ts.prs, ts.pst, ts.ftr, ts.byd, tsc.*
         from t_song ts, t_score tsc
-        where tsc.uid = #{param1} and tsc.sid = ts.sid
+        <where>
+            tsc.uid = #{uid} and tsc.sid = ts.sid
+            <if test="sname != null and sname != ''">and ts.sname like concat('%', #{sname}, '%')</if>
+            <if test="pid != null and pid != ''">and pid = #{pid}</if>
+        </where>
     </select>
 </mapper>

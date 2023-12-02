@@ -1,6 +1,4 @@
 package com.aptc.utils;
-
-import ch.qos.logback.core.joran.conditional.ThenAction;
 import org.springframework.stereotype.Component;
 
 public class BaseContext {

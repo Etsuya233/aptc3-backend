@@ -1,12 +1,11 @@
 package com.aptc.controller.user;
 
+import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserScoreVO;
 import com.aptc.result.PageResult;
 import com.aptc.result.Result;
 import com.aptc.service.ScoreService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user/score")
@@ -18,10 +17,9 @@ public class ScoreController {
 		this.scoreService = scoreService;
 	}
 
-	@GetMapping("")
-	public Result<PageResult> getAllScore(Integer pageNum, Integer pageSize){
-		System.out.println("score: " + Thread.currentThread());
-		PageResult pageResult = scoreService.getAllScore(pageNum, pageSize);
+	@PostMapping("")
+	public Result<PageResult> getAllScore(@RequestBody UserScoreQueryDTO userScoreQueryDTO){
+		PageResult pageResult = scoreService.getAllScore(userScoreQueryDTO);
 		return Result.success(pageResult);
 	}
 }

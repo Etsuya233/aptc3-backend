@@ -1,6 +1,7 @@
 package com.aptc.service.impl;
 
 import com.aptc.mapper.ScoreMapper;
+import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserScoreVO;
 import com.aptc.result.PageResult;
 import com.aptc.service.ScoreService;
@@ -20,10 +21,11 @@ public class ScoreServiceImpl implements ScoreService {
 	}
 
 	@Override
-	public PageResult getAllScore(Integer pageNum, Integer pageSize) {
+	public PageResult getAllScore(UserScoreQueryDTO userScoreQueryDTO) {
 		Integer uid = BaseContext.getCurrentId();
-		PageHelper.startPage(pageNum, pageSize);
-		List<UserScoreVO> list = scoreMapper.userScorePageQuery(uid, pageNum, pageSize);
+		userScoreQueryDTO.setUid(uid);
+		PageHelper.startPage(userScoreQueryDTO.getPageNum(), userScoreQueryDTO.getPageSize());
+		List<UserScoreVO> list = scoreMapper.userScorePageQuery(userScoreQueryDTO);
 		PageInfo<UserScoreVO> pageInfo = PageInfo.of(list);
 
 		PageResult pageResult = new PageResult();
@@ -32,4 +34,6 @@ public class ScoreServiceImpl implements ScoreService {
 
 		return pageResult;
 	}
+
+
 }
