@@ -4,7 +4,7 @@
 <mapper namespace="com.aptc.mapper.ScoreMapper">
 
     <select id="userScorePageQuery" resultType="com.aptc.pojo.vo.UserScoreVO">
-        select ts.sname, ts.prs, ts.pst, ts.ftr, ts.byd, tsc.*
+        select ts.sname, ts.pid, ts.prs, ts.pst, ts.ftr, ts.byd, tsc.*
         from t_song ts, t_score tsc
         <where>
             tsc.uid = #{uid} and tsc.sid = ts.sid

@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class UserScoreVO implements Serializable {
 	private Integer sid;
 	private Integer scid;
+	private Integer pid;
 	private String sname;
 	private Double pst;
 	private Integer pstScore;
