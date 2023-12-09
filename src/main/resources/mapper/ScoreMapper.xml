@@ -12,4 +12,48 @@
             <if test="pid != null and pid != ''">and pid = #{pid}</if>
         </where>
     </select>
+
+    <update id="updateScore">
+        update t_score
+            <set>
+                <if test="pstScore != null and pstScore != ''">pst_score = #{pstScore}, pst_ptt = #{pstPtt},</if>
+                <if test="type == 0 and (pstScore == null or pstScore == '')">pst_score = null, pst_ptt = null,</if>
+                <if test="prsScore != null and prsScore != ''">prs_score = #{prsScore}, prs_ptt = #{prsPtt},</if>
+                <if test="type == 0 and (prsScore == null or prsScore == '')">prs_score = null, prs_ptt = null,</if>
+                <if test="ftrScore != null and ftrScore != ''">ftr_score = #{ftrScore}, ftr_ptt = #{ftrPtt},</if>
+                <if test="type == 0 and (ftrScore == null or ftrScore == '')">ftr_score = null, ftr_ptt = null,</if>
+                <if test="bydScore != null and bydScore != ''">byd_score = #{bydScore}, byd_ptt = #{bydPtt}</if>
+                <if test="type == 0 and (bydScore == null or bydScore == '')">byd_score = null, byd_ptt = null,</if>
+            </set>
+        where scid = #{scid}
+    </update>
+
+    <insert id="insertScore">
+        INSERT INTO t_score
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="uid != null">uid,</if>
+            <if test="sid != null">sid,</if>
+            <if test="pstScore != null">pst_score,</if>
+            <if test="pstPtt != null">pst_ptt,</if>
+            <if test="prsScore != null">prs_score,</if>
+            <if test="prsPtt != null">prs_ptt,</if>
+            <if test="ftrScore != null">ftr_score,</if>
+            <if test="ftrPtt != null">ftr_ptt,</if>
+            <if test="bydScore != null">byd_score,</if>
+            <if test="bydPtt != null">byd_ptt,</if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="uid != null">#{uid},</if>
+            <if test="sid != null">#{sid},</if>
+            <if test="pstScore != null">#{pstScore},</if>
+            <if test="pstPtt != null">#{pstPtt},</if>
+            <if test="prsScore != null">#{prsScore},</if>
+            <if test="prsPtt != null">#{prsPtt},</if>
+            <if test="ftrScore != null">#{ftrScore},</if>
+            <if test="ftrPtt != null">#{ftrPtt},</if>
+            <if test="bydScore != null">#{bydScore},</if>
+            <if test="bydPtt != null">#{bydPtt},</if>
+        </trim>
+    </insert>
 </mapper>

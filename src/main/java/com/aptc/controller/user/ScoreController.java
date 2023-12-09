@@ -1,5 +1,6 @@
 package com.aptc.controller.user;
 
+import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserScoreVO;
 import com.aptc.result.PageResult;
@@ -22,4 +23,11 @@ public class ScoreController {
 		PageResult pageResult = scoreService.getAllScore(userScoreQueryDTO);
 		return Result.success(pageResult);
 	}
+
+	@PostMapping("/{sid}")
+	public Result<String> updateScore(@PathVariable String sid, @RequestBody UserScoreDTO userScoreDTO){
+		scoreService.updateScore(userScoreDTO);
+		return Result.success();
+	}
+
 }

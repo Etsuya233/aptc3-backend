@@ -18,7 +18,6 @@ public class SongServiceImpl implements SongService {
 		this.songMapper = songMapper;
 	}
 
-
 	@Override
 	public List<Song> getAllSong() {
 		return songMapper.getAllSong();
