@@ -2,11 +2,15 @@ package com.aptc.controller.user;
 
 import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
+import com.aptc.pojo.vo.UserB30VO;
 import com.aptc.pojo.vo.UserScoreVO;
 import com.aptc.result.PageResult;
 import com.aptc.result.Result;
 import com.aptc.service.ScoreService;
+import com.github.pagehelper.PageHelper;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user/score")
@@ -28,6 +32,13 @@ public class ScoreController {
 	public Result<String> updateScore(@PathVariable String sid, @RequestBody UserScoreDTO userScoreDTO){
 		scoreService.updateScore(userScoreDTO);
 		return Result.success();
+	}
+
+	@GetMapping("/b30")
+	public Result<List<UserB30VO>> getB30(@RequestParam(defaultValue = "30") Integer pageSize){
+		PageHelper.startPage(1, pageSize);
+		List<UserB30VO> list = scoreService.getB30(pageSize);
+		return Result.success(list);
 	}
 
 }

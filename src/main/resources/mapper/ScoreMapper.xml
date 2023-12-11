@@ -56,4 +56,19 @@
             <if test="bydPtt != null">#{bydPtt},</if>
         </trim>
     </insert>
+
+    <select id="getB30" resultType="com.aptc.pojo.vo.UserB30VO">
+        select t_song.sname sname, t_score.sid sid, pst_score score, pst_ptt ptt, time time, '1' difficulty_type, t_song.pst difficulty from t_score
+        left join t_song on t_score.sid = t_song.sid where t_score.uid = 1 and t_score.pst_score is not null
+        union
+        select t_song.sname sname, t_score.sid sid, prs_score score, prs_ptt ptt, time time, '2' difficulty_type, t_song.prs difficulty from t_score
+        left join t_song on t_score.sid = t_song.sid where t_score.uid = 1 and t_score.prs_score is not null
+        union
+        select t_song.sname sname, t_score.sid sid, ftr_score score, ftr_ptt ptt, time time, '3' difficulty_type, t_song.ftr difficulty from t_score
+        left join t_song on t_score.sid = t_song.sid where t_score.uid = 1 and t_score.ftr_score is not null
+        union
+        select t_song.sname sname, t_score.sid sid, byd_score score, byd_ptt ptt, time time, '4' difficulty_type, t_song.byd difficulty from t_score
+        left join t_song on t_score.sid = t_song.sid where t_score.uid = 1 and t_score.byd_score is not null
+        order by ptt desc
+    </select>
 </mapper>

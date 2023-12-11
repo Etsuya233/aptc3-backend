@@ -3,6 +3,7 @@ package com.aptc.service.impl;
 import com.aptc.mapper.ScoreMapper;
 import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
+import com.aptc.pojo.vo.UserB30VO;
 import com.aptc.pojo.vo.UserScoreVO;
 import com.aptc.result.PageResult;
 import com.aptc.service.ScoreService;
@@ -41,6 +42,13 @@ public class ScoreServiceImpl implements ScoreService {
 		userScoreDTO.setUid(BaseContext.getCurrentId());
 		if(userScoreDTO.getType() != 5) scoreMapper.updateScore(userScoreDTO);
 		else scoreMapper.insertScore(userScoreDTO);
+	}
+
+	@Override
+	public List<UserB30VO> getB30(Integer pageSize) {
+		Integer uid = BaseContext.getCurrentId();
+		List<UserB30VO> list = scoreMapper.getB30(uid);
+		return list;
 	}
 
 
