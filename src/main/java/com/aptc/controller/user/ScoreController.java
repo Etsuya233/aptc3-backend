@@ -3,6 +3,7 @@ package com.aptc.controller.user;
 import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserB30VO;
+import com.aptc.pojo.vo.UserPTTVO;
 import com.aptc.pojo.vo.UserScoreVO;
 import com.aptc.result.PageResult;
 import com.aptc.result.Result;
@@ -29,16 +30,21 @@ public class ScoreController {
 	}
 
 	@PostMapping("/{sid}")
-	public Result<String> updateScore(@PathVariable String sid, @RequestBody UserScoreDTO userScoreDTO){
+	public Result<String> updateScore(@RequestBody UserScoreDTO userScoreDTO){
 		scoreService.updateScore(userScoreDTO);
 		return Result.success();
 	}
 
 	@GetMapping("/b30")
 	public Result<List<UserB30VO>> getB30(@RequestParam(defaultValue = "30") Integer pageSize){
-		PageHelper.startPage(1, pageSize);
 		List<UserB30VO> list = scoreService.getB30(pageSize);
 		return Result.success(list);
+	}
+
+	@PutMapping("/ptt")
+	public Result<UserPTTVO> updatePTT(){
+		UserPTTVO userPTTVO = scoreService.updatePTT();
+		return Result.success(userPTTVO);
 	}
 
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.aptc.mapper.UserMapper">
+
+    <update id="update">
+        update t_user
+            <set>
+                <if test="arcId != null">arc_id = #{arcId},</if>
+                <if test="username != null and username != ''">username = #{username},</if>
+                <if test="password != null and password != ''">password = #{password},</if>
+                <if test="status != null">status = #{status},</if>
+                <if test="ptt != null">ptt = #{ptt},</if>
+                <if test="pttR10 != null">ptt_r10 = #{pttR10},</if>
+                <if test="pttB30 != null">ptt_b30 = #{pttB30}</if>
+            </set>
+    </update>
+</mapper>

@@ -13,4 +13,8 @@ public interface UserMapper {
 
 	@Select("select * from t_user where uid = #{currentId} ")
 	User getUserByUid(Integer currentId);
+
+
+	void update(User user);
 }
+
