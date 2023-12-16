@@ -24,6 +24,7 @@
                 <if test="type == 0 and (ftrScore == null or ftrScore == '')">ftr_score = null, ftr_ptt = null,</if>
                 <if test="bydScore != null and bydScore != ''">byd_score = #{bydScore}, byd_ptt = #{bydPtt}</if>
                 <if test="type == 0 and (bydScore == null or bydScore == '')">byd_score = null, byd_ptt = null,</if>
+                <if test="true">time = now(),</if>
             </set>
         where scid = #{scid}
     </update>

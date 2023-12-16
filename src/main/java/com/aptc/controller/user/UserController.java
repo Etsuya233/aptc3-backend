@@ -1,5 +1,6 @@
 package com.aptc.controller.user;
 
+import com.aptc.pojo.dto.RegisterDTO;
 import com.aptc.pojo.dto.UserLoginDTO;
 import com.aptc.pojo.vo.UserLoginVO;
 import com.aptc.result.Result;
@@ -31,6 +32,12 @@ public class UserController {
 	public Result<UserLoginVO> current(){
 		UserLoginVO userLoginVO = userService.getCurrent();
 		return Result.success(userLoginVO);
+	}
+
+	@PostMapping("/register")
+	public Result<String> register(@RequestBody RegisterDTO registerDTO){
+		userService.register(registerDTO);
+		return Result.success();
 	}
 
 	

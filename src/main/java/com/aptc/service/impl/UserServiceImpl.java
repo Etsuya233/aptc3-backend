@@ -4,6 +4,7 @@ import com.aptc.configuration.JwtProperties;
 import com.aptc.exception.LoginException;
 import com.aptc.mapper.UserMapper;
 import com.aptc.pojo.User;
+import com.aptc.pojo.dto.RegisterDTO;
 import com.aptc.pojo.dto.UserLoginDTO;
 import com.aptc.pojo.vo.UserLoginVO;
 import com.aptc.service.UserService;
@@ -60,5 +61,10 @@ public class UserServiceImpl implements UserService {
 		UserLoginVO userLoginVO = new UserLoginVO();
 		BeanUtils.copyProperties(user, userLoginVO);
 		return userLoginVO;
+	}
+
+	@Override
+	public void register(RegisterDTO registerDTO) {
+		userMapper.insert(registerDTO);
 	}
 }

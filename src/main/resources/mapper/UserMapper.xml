@@ -15,4 +15,9 @@
                 <if test="pttB30 != null">ptt_b30 = #{pttB30}</if>
             </set>
     </update>
+
+    <insert id="insert">
+        insert into t_user (arc_id, username, password, status)
+        value (#{arcId}, #{username}, #{password}, #{status})
+    </insert>
 </mapper>

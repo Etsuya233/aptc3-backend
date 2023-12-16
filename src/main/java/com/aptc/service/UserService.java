@@ -1,5 +1,6 @@
 package com.aptc.service;
 
+import com.aptc.pojo.dto.RegisterDTO;
 import com.aptc.pojo.dto.UserLoginDTO;
 import com.aptc.pojo.vo.UserLoginVO;
 
@@ -8,4 +9,5 @@ public interface UserService {
 
 	UserLoginVO getCurrent();
 
+	void register(RegisterDTO registerDTO);
 }
