@@ -8,4 +8,5 @@ public class RegisterDTO {
 	private String arcId;
 	private String password;
 	private String email;
+	private String status;
 }

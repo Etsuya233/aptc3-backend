@@ -66,6 +66,9 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void register(RegisterDTO registerDTO) {
+		String password = registerDTO.getPassword();
+		String md5password = DigestUtils.md5DigestAsHex(password.getBytes());
+		registerDTO.setPassword(md5password);
 		userMapper.insert(registerDTO);
 	}
 

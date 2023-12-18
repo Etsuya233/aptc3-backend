@@ -17,8 +17,8 @@
     </update>
 
     <insert id="insert">
-        insert into t_user (arc_id, username, password, status)
-        value (#{arcId}, #{username}, #{password}, #{status})
+        insert into t_user (arc_id, username, password, email)
+        value (#{arcId}, #{username}, #{password}, #{email})
     </insert>
 
     <select id="count" resultType="java.lang.Integer">
