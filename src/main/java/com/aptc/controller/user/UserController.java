@@ -1,6 +1,7 @@
 package com.aptc.controller.user;
 
 import com.aptc.pojo.dto.RegisterDTO;
+import com.aptc.pojo.dto.UserCountDTO;
 import com.aptc.pojo.dto.UserLoginDTO;
 import com.aptc.pojo.vo.UserLoginVO;
 import com.aptc.result.Result;
@@ -40,6 +41,10 @@ public class UserController {
 		return Result.success();
 	}
 
-	
+	@PostMapping("/count")
+	public Result<Integer> count(@RequestBody UserCountDTO userCountDTO){
+		Integer ret = userService.count(userCountDTO);
+		return Result.success(ret);
+	}
 
 }

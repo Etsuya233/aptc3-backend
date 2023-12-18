@@ -2,9 +2,9 @@ package com.aptc.mapper;
 
 import com.aptc.pojo.User;
 import com.aptc.pojo.dto.RegisterDTO;
+import com.aptc.pojo.dto.UserCountDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.web.bind.annotation.RestController;
 
 @Mapper
 public interface UserMapper {
@@ -19,5 +19,7 @@ public interface UserMapper {
 	void update(User user);
 
 	void insert(RegisterDTO registerDTO);
+
+	Integer count(UserCountDTO userCountDTO);
 }
 

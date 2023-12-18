@@ -53,6 +53,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 		log.info("开始注册拦截器");
 		registry.addInterceptor(jwtUserInterceptor)
 				.addPathPatterns("/user/**")
-				.excludePathPatterns("/user/user/login");
+				.excludePathPatterns("/user/user/login")
+				.excludePathPatterns("/user/user/count");
 	}
 }
