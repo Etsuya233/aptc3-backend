@@ -17,4 +17,5 @@ public interface ScoreService {
 
 	UserPTTVO updatePTT();
 
+	void importScore();
 }

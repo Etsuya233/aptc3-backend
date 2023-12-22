@@ -42,7 +42,9 @@ public class TestService {
 
 		//插入数据库
 		for(Song song: songs){
-			jdbcTemplate.update("update t_song set sgid = ? where sname = ?", song.getGid(), song.getSname());
+			jdbcTemplate.update("update t_song set sgid = ? where sname = ? and not exists (select * from t_song where sgid = ?)", song.getGid(), song.getSname(), song.getGid());
 		}
+
+		
 	}
 }

@@ -1,9 +1,7 @@
 package com.aptc.intercepter;
 
 import com.aptc.configuration.JwtProperties;
-import com.aptc.exception.LoginException;
 import com.aptc.utils.BaseContext;
-import com.aptc.utils.Constants;
 import com.aptc.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

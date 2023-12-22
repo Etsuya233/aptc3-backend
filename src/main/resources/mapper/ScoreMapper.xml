@@ -72,4 +72,21 @@
         left join t_song on t_score.sid = t_song.sid where t_score.uid = #{uid} and t_score.byd_score is not null
         order by ptt desc
     </select>
+
+    <insert id="insertScoreBatch">
+        insert into t_score (uid, sid, pst_score, pst_ptt, prs_score, prs_ptt, ftr_score, ftr_ptt, byd_score, byd_ptt)
+        values
+        <foreach collection="scores" item="score" separator=",">
+            (#{score.uid},
+            #{score.sid},
+            #{score.pstScore},
+            #{score.pstPtt},
+            #{score.prsScore},
+            #{score.prsPtt},
+            #{score.ftrScore},
+            #{score.ftrPtt},
+            #{score.bydScore},
+            #{score.bydPtt})
+        </foreach>
+    </insert>
 </mapper>

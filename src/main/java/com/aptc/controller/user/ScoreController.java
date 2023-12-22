@@ -47,4 +47,10 @@ public class ScoreController {
 		return Result.success(userPTTVO);
 	}
 
+	@PutMapping("/import")
+	public Result<String> importScore(){
+		scoreService.importScore();
+		return Result.success();
+	}
+
 }

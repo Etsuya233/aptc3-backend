@@ -10,7 +10,6 @@ import com.aptc.pojo.dto.UserLoginDTO;
 import com.aptc.pojo.vo.UserLoginVO;
 import com.aptc.service.UserService;
 import com.aptc.utils.BaseContext;
-import com.aptc.utils.Constants;
 import com.aptc.utils.JwtUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
