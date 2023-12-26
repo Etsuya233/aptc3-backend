@@ -10,6 +10,7 @@ import com.aptc.result.Result;
 import com.aptc.service.ScoreService;
 import com.github.pagehelper.PageHelper;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -47,9 +48,9 @@ public class ScoreController {
 		return Result.success(userPTTVO);
 	}
 
-	@PutMapping("/import")
-	public Result<String> importScore(){
-		scoreService.importScore();
+	@PostMapping("/import")
+	public Result<String> importScore(@RequestParam("file") MultipartFile file){
+		scoreService.importScore(file);
 		return Result.success();
 	}
 

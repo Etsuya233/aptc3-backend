@@ -25,9 +25,4 @@ public class TestController {
 			throw new RuntimeException(e);
 		}
 	}
-
-	@RequestMapping("/timport")
-	public void testImport(){
-		scoreService.importScore();
-	}
 }

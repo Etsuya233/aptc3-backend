@@ -18,9 +18,16 @@ import com.aptc.utils.ArcaeaUtils;
 import com.aptc.utils.BaseContext;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -92,24 +99,34 @@ public class ScoreServiceImpl implements ScoreService {
 
 	@Override
 	@Transactional
-	public void importScore() {
-		//TODO 上传文件
+	public void importScore(MultipartFile file) {
+		if(file.isEmpty()){
+			throw new RuntimeException("文件为空！");
+		}
 
-		String url = "jdbc:sqlite:C:/Users/etsuy/Downloads/LANDrop/st3";
+		//TODO 优化路径！
+		Integer uid = BaseContext.getCurrentId();
+		String tempDirectory = "D:/Etsuya/Programming/temp/";
+		String filePath = tempDirectory + uid + ".st3";
+		String url = "jdbc:sqlite:" + filePath;
 		String sql = "select songId, songDifficulty, score from scores";
 
-		Integer uid = BaseContext.getCurrentId();
-
-		//获取全部歌曲难度的sgid并排序，后面用来查定数
-		List<Song> songs = songMapper.getAllSong();
-		songs.sort(Comparator.comparing(Song::getSgid));
-		List<String> songsgid = songs.stream().map(Song::getSgid).toList();
-
+		//保存文件
+		try {
+			Files.copy(file.getInputStream(), Path.of(filePath), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
 		try(
 				Connection connection = DriverManager.getConnection(url);
 				PreparedStatement preparedStatement = connection.prepareStatement(sql);
 				ResultSet resultSet = preparedStatement.executeQuery()){
+
+			//获取全部歌曲难度的sgid并排序，后面用来查定数
+			List<Song> songs = songMapper.getAllSong();
+			songs.sort(Comparator.comparing(Song::getSgid));
+			List<String> songsgid = songs.stream().map(Song::getSgid).toList();
 
 			//读出数据
 			List<ImportScoreDTO> list = new ArrayList<>();
@@ -167,5 +184,17 @@ public class ScoreServiceImpl implements ScoreService {
 		} catch (Exception e){
 			throw new RuntimeException("导出数据时出错！");
 		}
+
+		//删除文件
+		try {
+			deleteFile(filePath);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void deleteFile(String filePath) throws IOException {
+		// 删除文件
+		Files.delete(Path.of(filePath));
 	}
 }

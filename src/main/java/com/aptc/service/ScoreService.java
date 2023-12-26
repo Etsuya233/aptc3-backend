@@ -5,6 +5,7 @@ import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserB30VO;
 import com.aptc.pojo.vo.UserPTTVO;
 import com.aptc.result.PageResult;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,5 +18,5 @@ public interface ScoreService {
 
 	UserPTTVO updatePTT();
 
-	void importScore();
+	void importScore(MultipartFile file);
 }
