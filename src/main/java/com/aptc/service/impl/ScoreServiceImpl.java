@@ -104,6 +104,7 @@ public class ScoreServiceImpl implements ScoreService {
 			throw new RuntimeException("文件为空！");
 		}
 
+		//TODO 应该要一个生成图！
 		//TODO 优化路径！
 		Integer uid = BaseContext.getCurrentId();
 		String tempDirectory = "D:/Etsuya/Programming/temp/";
