@@ -1,5 +1,6 @@
 package com.aptc.controller.user;
 
+import com.aptc.pojo.dto.ImportScoreDTO;
 import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserB30VO;
@@ -9,9 +10,13 @@ import com.aptc.result.PageResult;
 import com.aptc.result.Result;
 import com.aptc.service.ScoreService;
 import com.github.pagehelper.PageHelper;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 @RestController
@@ -52,6 +57,12 @@ public class ScoreController {
 	public Result<String> importScore(@RequestParam("file") MultipartFile file){
 		scoreService.importScore(file);
 		return Result.success();
+	}
+
+
+	@GetMapping("/export")
+	public void exportScore(HttpServletResponse response){
+		scoreService.exportScore(response);
 	}
 
 }

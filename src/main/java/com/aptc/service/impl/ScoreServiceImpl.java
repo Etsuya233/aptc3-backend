@@ -7,6 +7,7 @@ import com.aptc.pojo.Score;
 import com.aptc.pojo.Song;
 import com.aptc.pojo.User;
 import com.aptc.pojo.dto.ImportScoreDTO;
+import com.aptc.pojo.dto.UserExportSt3VO;
 import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserB30VO;
@@ -18,13 +19,16 @@ import com.aptc.utils.ArcaeaUtils;
 import com.aptc.utils.BaseContext;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -97,6 +101,8 @@ public class ScoreServiceImpl implements ScoreService {
 		return userPTTVO;
 	}
 
+
+	//妈个臭逼 我还以为我的写好了（（（
 	@Override
 	@Transactional
 	public void importScore(MultipartFile file) {
@@ -107,7 +113,7 @@ public class ScoreServiceImpl implements ScoreService {
 		//TODO 应该要一个生成图！
 		//TODO 优化路径！
 		Integer uid = BaseContext.getCurrentId();
-		String tempDirectory = "D:/Etsuya/Programming/temp/";
+		String tempDirectory = "D:/Etsuya/Programming/temp/import";
 		String filePath = tempDirectory + uid + ".st3";
 		String url = "jdbc:sqlite:" + filePath;
 		String sql = "select songId, songDifficulty, score from scores";
@@ -193,6 +199,111 @@ public class ScoreServiceImpl implements ScoreService {
 			throw new RuntimeException(e);
 		}
 	}
+
+	//TODO: 好像有更好的实现形式来着？用那个ResponseEntity！
+	//TODO: 也做个导入导出至CSV
+	@Override
+	public void exportScore(HttpServletResponse response) {
+		generateSt3File();
+
+		String filePath = "D:/Etsuya/Programming/temp/export/";
+		Integer userId = BaseContext.getCurrentId();
+		String fileName = userId + ".st3";
+		String fullPath = filePath + fileName;
+
+		File file = new File(fullPath);
+
+		// 设置响应头
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+		response.setHeader("Content-Length", String.valueOf(file.length()));
+
+		// 读取文件并写入响应流
+		try (FileInputStream fis = new FileInputStream(file);
+			 OutputStream os = response.getOutputStream()) {
+
+			byte[] buffer = new byte[1024];
+			int bytesRead;
+			while ((bytesRead = fis.read(buffer)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void generateSt3File(){
+		Integer userId = BaseContext.getCurrentId();
+		String filePath = "D:/Etsuya/Programming/temp/export/";
+		String fileName = userId + ".st3";
+
+		try {
+			Files.deleteIfExists(Path.of(filePath + fileName));
+			//不需要这句话，因为假如没有的话，sqlite会自己创建。
+//			Files.createFile(Path.of(filePath + fileName));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		String url = "jdbc:sqlite:" + filePath + fileName;
+		String sqlForCreate = "CREATE TABLE \"scores\" (\n" +
+				"\t\"id\" INTEGER NOT NULL,\n" +
+				"\t\"version\" INTEGER NULL,\n" +
+				"\t\"score\" INTEGER NULL,\n" +
+				"\t\"shinyPerfectCount\" INTEGER NULL,\n" +
+				"\t\"perfectCount\" INTEGER NULL,\n" +
+				"\t\"nearCount\" INTEGER NULL,\n" +
+				"\t\"missCount\" INTEGER NULL,\n" +
+				"\t\"date\" INTEGER NULL,\n" +
+				"\t\"songId\" TEXT NULL,\n" +
+				"\t\"songDifficulty\" INTEGER NULL,\n" +
+				"\t\"modifier\" INTEGER NULL,\n" +
+				"\t\"health\" INTEGER NULL,\n" +
+				"\t\"ct\" INTEGER NULL,\n" +
+				"\tPRIMARY KEY (\"id\")\n" +
+				")\n" +
+				";";
+
+		try {
+			Connection connection = DriverManager.getConnection(url);
+
+			//创建表
+			PreparedStatement createStatement = connection.prepareStatement(sqlForCreate);
+			createStatement.execute();
+
+			//获取数据
+			UserScoreQueryDTO userScoreQueryDTO = new UserScoreQueryDTO();
+			userScoreQueryDTO.setUid(userId);
+			userScoreQueryDTO.setPageSize(1000);
+			userScoreQueryDTO.setPageNum(1);
+			List<UserExportSt3VO> scores = scoreMapper.getExportSt3List(userId);
+
+			//导入数据
+			if(scores.isEmpty()) {
+				return;
+			}
+
+			int cnt = 1;
+			StringBuilder sb = new StringBuilder("insert into scores (id, score, songId, songDifficulty) values ");
+			for(UserExportSt3VO a: scores){
+				if(a.getPstScore() != null) sb.append("(").append(cnt++).append(',').append(a.getPstScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("1").append("),");
+				if(a.getPrsScore() != null) sb.append("(").append(cnt++).append(',').append(a.getPrsScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("2").append("),");
+				if(a.getFtrScore() != null) sb.append("(").append(cnt++).append(',').append(a.getFtrScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("3").append("),");
+				if(a.getBydScore() != null) sb.append("(").append(cnt++).append(',').append(a.getBydScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("4").append("),");
+			}
+			sb.deleteCharAt(sb.length() - 1);
+			sb.append(";");
+			System.out.println(sb);
+			PreparedStatement preparedStatement = connection.prepareStatement(sb.toString());
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 
 	private void deleteFile(String filePath) throws IOException {
 		// 删除文件

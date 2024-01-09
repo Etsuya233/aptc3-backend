@@ -4,6 +4,8 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+//TODO: sname pid is useless?
+
 @Data
 public class UserScoreQueryDTO implements Serializable {
 	private Integer uid;

@@ -89,4 +89,11 @@
             #{score.bydPtt})
         </foreach>
     </insert>
+
+    <select id="getExportSt3List" resultType="com.aptc.pojo.dto.UserExportSt3VO">
+        select tsc.pst_score, tsc.prs_score, tsc.ftr_score, tsc.byd_score, ts.sgid songId
+        from t_score tsc
+        left join aptc.t_song ts on tsc.sid = ts.sid
+        where uid = #{uid};
+    </select>
 </mapper>
