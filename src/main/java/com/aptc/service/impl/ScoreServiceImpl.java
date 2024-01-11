@@ -101,8 +101,6 @@ public class ScoreServiceImpl implements ScoreService {
 		return userPTTVO;
 	}
 
-
-	//妈个臭逼 我还以为我的写好了（（（
 	@Override
 	@Transactional
 	public void importScore(MultipartFile file) {
@@ -202,6 +200,8 @@ public class ScoreServiceImpl implements ScoreService {
 
 	//TODO: 好像有更好的实现形式来着？用那个ResponseEntity！
 	//TODO: 也做个导入导出至CSV
+	//TODO: 妈个臭逼 我还以为我的写好了（（（
+	//TODO: 复习IO流
 	@Override
 	public void exportScore(HttpServletResponse response) {
 		generateSt3File();
