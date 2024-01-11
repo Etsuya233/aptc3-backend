@@ -3,6 +3,7 @@ package com.aptc.controller.user;
 import com.aptc.pojo.dto.RegisterDTO;
 import com.aptc.pojo.dto.UserCountDTO;
 import com.aptc.pojo.dto.UserLoginDTO;
+import com.aptc.pojo.dto.UserUpdateInfoDTO;
 import com.aptc.pojo.vo.UserLoginVO;
 import com.aptc.result.Result;
 import com.aptc.service.UserService;
@@ -47,4 +48,9 @@ public class UserController {
 		return Result.success(ret);
 	}
 
+	@PutMapping("/update")
+	public Result<String> updateUserInfo(@RequestBody UserUpdateInfoDTO userUpdateInfoDTO){
+		userService.updateUserInfo(userUpdateInfoDTO);
+		return Result.success();
+	}
 }

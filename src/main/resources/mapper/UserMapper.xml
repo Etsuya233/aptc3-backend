@@ -24,7 +24,7 @@
     <select id="count" resultType="java.lang.Integer">
         select count(*) from t_user
         <where>
-            <if test="username != null and username != ''">username like concat('%', #{username}, '%')</if>
+            <if test="username != null and username != ''">username = #{username}</if>
             <if test="email != null and email != ''">and email = #{email}</if>
         </where>
     </select>

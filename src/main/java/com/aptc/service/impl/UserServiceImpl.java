@@ -2,17 +2,20 @@ package com.aptc.service.impl;
 
 import com.aptc.configuration.JwtProperties;
 import com.aptc.exception.LoginException;
+import com.aptc.exception.UserException;
 import com.aptc.mapper.UserMapper;
 import com.aptc.pojo.User;
 import com.aptc.pojo.dto.RegisterDTO;
 import com.aptc.pojo.dto.UserCountDTO;
 import com.aptc.pojo.dto.UserLoginDTO;
+import com.aptc.pojo.dto.UserUpdateInfoDTO;
 import com.aptc.pojo.vo.UserLoginVO;
 import com.aptc.service.UserService;
 import com.aptc.utils.BaseContext;
 import com.aptc.utils.JwtUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import java.util.HashMap;
@@ -74,5 +77,26 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Integer count(UserCountDTO userCountDTO) {
 		return userMapper.count(userCountDTO);
+	}
+
+	@Override
+	@Transactional
+	public void updateUserInfo(UserUpdateInfoDTO userUpdateInfoDTO) {
+		User user = userMapper.getUserByUid(BaseContext.getCurrentId());
+		//更改用户名
+		if(userUpdateInfoDTO.getUsername() != null && !userUpdateInfoDTO.getUsername().isEmpty()){
+			user.setUsername(userUpdateInfoDTO.getUsername());
+		}
+		//更改密码
+		if(userUpdateInfoDTO.getOldpw() != null && !userUpdateInfoDTO.getOldpw().isEmpty()){
+			//检验密码是否匹配
+			//TODO: 异常处理复习
+			String oldpw = DigestUtils.md5DigestAsHex(userUpdateInfoDTO.getOldpw().getBytes());
+			if(!oldpw.equals(user.getPassword())) throw new UserException("修改用户信息：旧密码错误");
+			String newpw = DigestUtils.md5DigestAsHex(userUpdateInfoDTO.getNewpw().getBytes());
+			user.setPassword(newpw);
+		}
+		//更新用户
+		userMapper.update(user);
 	}
 }
