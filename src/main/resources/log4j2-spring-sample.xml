@@ -8,7 +8,8 @@
         <Property name="FILE_LOG_PATTERN">%d{${sys:LOG_DATEFORMAT_PATTERN}} ${sys:LOG_LEVEL_PATTERN} %pid --- [%t] %-40.40c{1.} : %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
 
         <!--change the location where the logs should be-->
-        <Property name="FILE_PATH" value="/home/etsuya/Programming/logs/aptc/" />
+        <Property name="FILE_PATH" value="D:\Etsuya\Programming\Logs\APTC3" />
+
         <Property name="FILE_NAME" value="APTC3" />
     </Properties>
     <Appenders>
