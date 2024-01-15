@@ -48,7 +48,7 @@ public class ScoreController {
 	}
 
 	@PutMapping("/ptt")
-	public Result<UserPTTVO> updatePTT(){
+	public Result<UserPTTVO> updatePTT(){ //这个叫refresh ppt更合适
 		UserPTTVO userPTTVO = scoreService.updatePTT();
 		return Result.success(userPTTVO);
 	}
@@ -65,4 +65,9 @@ public class ScoreController {
 		scoreService.exportScore(response);
 	}
 
+	@PutMapping("/newPPT")
+	public Result<UserPTTVO> updateNewPPT(@RequestParam Double newPTT){
+		UserPTTVO userPTTVO = scoreService.updateNewPPT(newPTT);
+		return Result.success(userPTTVO);
+	}
 }

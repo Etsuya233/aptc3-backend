@@ -20,10 +20,8 @@ import com.aptc.utils.BaseContext;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,10 +35,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ScoreServiceImpl implements ScoreService {
 	private final ScoreMapper scoreMapper;
 	private final UserMapper userMapper;
 	private final SongMapper songMapper;
+
+	@Value("${ety.path.import}")
+	private String importTempPath;
+	@Value("${ety.path.export}")
+	private String exportTempPath;
 
 	public ScoreServiceImpl(ScoreMapper scoreMapper, UserMapper userMapper, SongMapper songMapper) {
 		this.scoreMapper = scoreMapper;
@@ -74,7 +78,7 @@ public class ScoreServiceImpl implements ScoreService {
 	public List<UserB30VO> getB30(Integer pageSize) {
 		Integer uid = BaseContext.getCurrentId();
 		PageHelper.startPage(1, pageSize);
-		List<UserB30VO> list = scoreMapper.getB30(uid);
+			List<UserB30VO> list = scoreMapper.getB30(uid);
 		return list;
 	}
 
@@ -109,12 +113,19 @@ public class ScoreServiceImpl implements ScoreService {
 		}
 
 		//TODO 应该要一个生成图！
-		//TODO 优化路径！
 		Integer uid = BaseContext.getCurrentId();
-		String tempDirectory = "D:/Etsuya/Programming/temp/import";
-		String filePath = tempDirectory + uid + ".st3";
+		String filePath = importTempPath + uid + ".st3";
 		String url = "jdbc:sqlite:" + filePath;
 		String sql = "select songId, songDifficulty, score from scores";
+
+		try {
+			//使用createDirectories，父目录不存在仍可以创建！
+			Files.createDirectories(Path.of(importTempPath));
+			System.out.println("文件夹已创建：" + importTempPath);
+		} catch (IOException e) {
+			// 处理创建目录时的异常
+			log.error("import文件夹创建失败！");
+		}
 
 		//保存文件
 		try {
@@ -200,16 +211,14 @@ public class ScoreServiceImpl implements ScoreService {
 
 	//TODO: 好像有更好的实现形式来着？用那个ResponseEntity！
 	//TODO: 也做个导入导出至CSV
-	//TODO: 妈个臭逼 我还以为我的写好了（（（
 	//TODO: 复习IO流
 	@Override
 	public void exportScore(HttpServletResponse response) {
 		generateSt3File();
 
-		String filePath = "D:/Etsuya/Programming/temp/export/";
 		Integer userId = BaseContext.getCurrentId();
 		String fileName = userId + ".st3";
-		String fullPath = filePath + fileName;
+		String fullPath = exportTempPath + fileName;
 
 		File file = new File(fullPath);
 
@@ -234,20 +243,41 @@ public class ScoreServiceImpl implements ScoreService {
 		}
 	}
 
+	@Override
+	public UserPTTVO updateNewPPT(Double newPTT) {
+		//更新新的PPT
+		Integer userId = BaseContext.getCurrentId();
+		User user = new User();
+		user.setUid(userId);
+		user.setPtt(newPTT);
+		userMapper.update(user);
+		//计算B30和R10
+		UserPTTVO userPTTVO = updatePTT();
+		return userPTTVO;
+	}
+
 	private void generateSt3File(){
 		Integer userId = BaseContext.getCurrentId();
-		String filePath = "D:/Etsuya/Programming/temp/export/";
 		String fileName = userId + ".st3";
 
 		try {
-			Files.deleteIfExists(Path.of(filePath + fileName));
+			//使用createDirectories，父目录不存在仍可以创建！
+			Files.createDirectories(Path.of(exportTempPath));
+			System.out.println("文件夹已创建：" + exportTempPath);
+		} catch (IOException e) {
+			// 处理创建目录时的异常
+			log.error("export文件夹创建失败！");
+		}
+
+		try {
+			Files.deleteIfExists(Path.of(exportTempPath + fileName));
 			//不需要这句话，因为假如没有的话，sqlite会自己创建。
 //			Files.createFile(Path.of(filePath + fileName));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
-		String url = "jdbc:sqlite:" + filePath + fileName;
+		String url = "jdbc:sqlite:" + exportTempPath + fileName;
 		String sqlForCreate = "CREATE TABLE \"scores\" (\n" +
 				"\t\"id\" INTEGER NOT NULL,\n" +
 				"\t\"version\" INTEGER NULL,\n" +
@@ -288,10 +318,10 @@ public class ScoreServiceImpl implements ScoreService {
 			int cnt = 1;
 			StringBuilder sb = new StringBuilder("insert into scores (id, score, songId, songDifficulty) values ");
 			for(UserExportSt3VO a: scores){
-				if(a.getPstScore() != null) sb.append("(").append(cnt++).append(',').append(a.getPstScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("1").append("),");
-				if(a.getPrsScore() != null) sb.append("(").append(cnt++).append(',').append(a.getPrsScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("2").append("),");
-				if(a.getFtrScore() != null) sb.append("(").append(cnt++).append(',').append(a.getFtrScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("3").append("),");
-				if(a.getBydScore() != null) sb.append("(").append(cnt++).append(',').append(a.getBydScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("4").append("),");
+				if(a.getPstScore() != null) sb.append("(").append(cnt++).append(',').append(a.getPstScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("0").append("),");
+				if(a.getPrsScore() != null) sb.append("(").append(cnt++).append(',').append(a.getPrsScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("1").append("),");
+				if(a.getFtrScore() != null) sb.append("(").append(cnt++).append(',').append(a.getFtrScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("2").append("),");
+				if(a.getBydScore() != null) sb.append("(").append(cnt++).append(',').append(a.getBydScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("3").append("),");
 			}
 			sb.deleteCharAt(sb.length() - 1);
 			sb.append(";");

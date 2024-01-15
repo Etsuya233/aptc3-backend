@@ -1,0 +1,19 @@
+spring:
+  datasource: #database info
+    url:
+    username:
+    password:
+  data:
+    redis:
+      host:
+      port:
+      password:
+      database:
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
+
+logging:
+  level:
+    com.aptc.mapper: debug
