@@ -17,3 +17,8 @@ mybatis:
 logging:
   level:
     com.aptc.mapper: debug
+
+ety:
+  path:
+    import:
+    export:

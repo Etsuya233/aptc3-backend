@@ -84,7 +84,9 @@ public class ScoreServiceImpl implements ScoreService {
 
 	@Override
 	public UserPTTVO updatePTT() {
-		User user = userMapper.getUserByUid(BaseContext.getCurrentId());
+		Integer userId = BaseContext.getCurrentId();
+
+		User user = userMapper.getUserByUid(userId);
 		UserPTTVO userPTTVO = new UserPTTVO();
 		userPTTVO.setPtt(user.getPtt());
 
@@ -96,6 +98,7 @@ public class ScoreServiceImpl implements ScoreService {
 		user = new User();
 		user.setPttB30(b30);
 		user.setPttR10(r10);
+		user.setUid(userId);
 		userMapper.update(user);
 
 		userPTTVO.setPttR10(r10);
