@@ -36,6 +36,7 @@ public class JacksonObjectMapper extends ObjectMapper {
         this.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
 //        this.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
+
         //反序列化时，属性不存在的兼容处理
         this.getDeserializationConfig().withoutFeatures(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 

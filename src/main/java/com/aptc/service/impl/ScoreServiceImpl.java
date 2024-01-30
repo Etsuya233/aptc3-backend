@@ -1,5 +1,8 @@
 package com.aptc.service.impl;
 
+import com.aptc.exception.DataException;
+import com.aptc.exception.DataProcessingException;
+import com.aptc.exception.FileIOException;
 import com.aptc.mapper.ScoreMapper;
 import com.aptc.mapper.SongMapper;
 import com.aptc.mapper.UserMapper;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -41,10 +45,8 @@ public class ScoreServiceImpl implements ScoreService {
 	private final UserMapper userMapper;
 	private final SongMapper songMapper;
 
-	@Value("${ety.path.import}")
-	private String importTempPath;
-	@Value("${ety.path.export}")
-	private String exportTempPath;
+	@Value("${ety.path.temp}")
+	private String tempPath;
 
 	public ScoreServiceImpl(ScoreMapper scoreMapper, UserMapper userMapper, SongMapper songMapper) {
 		this.scoreMapper = scoreMapper;
@@ -110,31 +112,34 @@ public class ScoreServiceImpl implements ScoreService {
 
 	@Override
 	@Transactional
-	public void importScore(MultipartFile file) {
+	public void importScore(MultipartFile file) throws FileIOException, DataException {
 		if(file.isEmpty()){
-			throw new RuntimeException("文件为空！");
+			throw new DataException("用户上传数据为空!");
 		}
 
 		//TODO 应该要一个生成图！
 		Integer uid = BaseContext.getCurrentId();
-		String filePath = importTempPath + uid + ".st3";
+		String downloadLabel = "import";
+		String filePath = tempPath + downloadLabel + "/" + uid + ".st3";
 		String url = "jdbc:sqlite:" + filePath;
 		String sql = "select songId, songDifficulty, score from scores";
 
+
+		//使用createDirectories，父目录不存在仍可以创建！
 		try {
-			//使用createDirectories，父目录不存在仍可以创建！
-			Files.createDirectories(Path.of(importTempPath));
-			System.out.println("文件夹已创建：" + importTempPath);
+			Files.createDirectories(Path.of(tempPath + downloadLabel + "/"));
+			log.info("import已成功创建");
+		} catch (FileAlreadyExistsException e) {
+			log.info("import文件夹已存在，不再创建");
 		} catch (IOException e) {
-			// 处理创建目录时的异常
-			log.error("import文件夹创建失败！");
+			throw new FileIOException("import文件夹创建失败：", e);
 		}
 
 		//保存文件
 		try {
 			Files.copy(file.getInputStream(), Path.of(filePath), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new FileIOException("import文件拷贝出现异常：", e);
 		}
 
 		try(
@@ -200,87 +205,44 @@ public class ScoreServiceImpl implements ScoreService {
 
 			//更新ptt
 			updatePTT();
-		} catch (Exception e){
-			throw new RuntimeException("导出数据时出错！");
+		} catch (SQLException e) {
+			throw new DataException("用户导入数据，数据出现异常：", e);
 		}
 
-		//删除文件
-		try {
-			deleteFile(filePath);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		//TODO: 半夜处理
+//		//删除文件
+//		try {
+//			deleteFile(filePath);
+//		} catch (IOException e) {
+//			throw new FileIOException("文件删除失败：", e);
+//		}
 	}
 
 	//TODO: 好像有更好的实现形式来着？用那个ResponseEntity！
 	//TODO: 也做个导入导出至CSV
 	//TODO: 复习IO流
 	@Override
-	public void exportScore(HttpServletResponse response) {
-		generateSt3File();
-
+	public void exportScore() throws FileIOException, DataProcessingException {
 		Integer userId = BaseContext.getCurrentId();
-		String fileName = userId + ".st3";
-		String fullPath = exportTempPath + fileName;
-
-		File file = new File(fullPath);
-
-		// 设置响应头
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-		response.setHeader("Content-Length", String.valueOf(file.length()));
-
-		// 读取文件并写入响应流
-		try (FileInputStream fis = new FileInputStream(file);
-			 OutputStream os = response.getOutputStream()) {
-
-			byte[] buffer = new byte[1024];
-			int bytesRead;
-			while ((bytesRead = fis.read(buffer)) != -1) {
-				os.write(buffer, 0, bytesRead);
-			}
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public UserPTTVO updateNewPPT(Double newPTT) {
-		//更新新的PPT
-		Integer userId = BaseContext.getCurrentId();
-		User user = new User();
-		user.setUid(userId);
-		user.setPtt(newPTT);
-		userMapper.update(user);
-		//计算B30和R10
-		UserPTTVO userPTTVO = updatePTT();
-		return userPTTVO;
-	}
-
-	private void generateSt3File(){
-		Integer userId = BaseContext.getCurrentId();
+		String downloadLabel = "export";
 		String fileName = userId + ".st3";
 
 		try {
 			//使用createDirectories，父目录不存在仍可以创建！
-			Files.createDirectories(Path.of(exportTempPath));
-			System.out.println("文件夹已创建：" + exportTempPath);
+			Files.createDirectories(Path.of(tempPath + downloadLabel + "/"));
+		} catch(FileAlreadyExistsException e){
+			log.info("export文件夹已存在，无需创建。");
 		} catch (IOException e) {
-			// 处理创建目录时的异常
-			log.error("export文件夹创建失败！");
+			throw new FileIOException("无法创建export文件夹", e);
 		}
 
 		try {
-			Files.deleteIfExists(Path.of(exportTempPath + fileName));
-			//不需要这句话，因为假如没有的话，sqlite会自己创建。
-//			Files.createFile(Path.of(filePath + fileName));
+			Files.deleteIfExists(Path.of(tempPath + downloadLabel + "/" + fileName));
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new FileIOException("无法删除原有文件", e);
 		}
 
-		String url = "jdbc:sqlite:" + exportTempPath + fileName;
+		String url = "jdbc:sqlite:" + tempPath + downloadLabel + "/" + fileName;
 		String sqlForCreate = "CREATE TABLE \"scores\" (\n" +
 				"\t\"id\" INTEGER NOT NULL,\n" +
 				"\t\"version\" INTEGER NULL,\n" +
@@ -333,8 +295,21 @@ public class ScoreServiceImpl implements ScoreService {
 			preparedStatement.execute();
 
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new DataProcessingException("导出数据时出现异常", e);
 		}
+	}
+
+	@Override
+	public UserPTTVO updateNewPPT(Double newPTT) {
+		//更新新的PPT
+		Integer userId = BaseContext.getCurrentId();
+		User user = new User();
+		user.setUid(userId);
+		user.setPtt(newPTT);
+		userMapper.update(user);
+		//计算B30和R10
+		UserPTTVO userPTTVO = updatePTT();
+		return userPTTVO;
 	}
 
 

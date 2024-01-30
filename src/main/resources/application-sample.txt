@@ -20,5 +20,4 @@ logging:
 
 ety:
   path:
-    import:
-    export:
+    temp:

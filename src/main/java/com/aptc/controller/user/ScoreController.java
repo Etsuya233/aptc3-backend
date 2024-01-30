@@ -1,22 +1,20 @@
 package com.aptc.controller.user;
 
-import com.aptc.pojo.dto.ImportScoreDTO;
+import com.aptc.exception.DataException;
+import com.aptc.exception.DataProcessingException;
+import com.aptc.exception.FileIOException;
 import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserB30VO;
 import com.aptc.pojo.vo.UserPTTVO;
-import com.aptc.pojo.vo.UserScoreVO;
 import com.aptc.result.PageResult;
 import com.aptc.result.Result;
+import com.aptc.service.DownloadService;
 import com.aptc.service.ScoreService;
-import com.github.pagehelper.PageHelper;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 
 @RestController
@@ -24,9 +22,11 @@ import java.util.List;
 public class ScoreController {
 
 	private ScoreService scoreService;
+	private DownloadService downloadService;
 
-	public ScoreController(ScoreService scoreService) {
+	public ScoreController(ScoreService scoreService, DownloadService downloadService) {
 		this.scoreService = scoreService;
+		this.downloadService = downloadService;
 	}
 
 	@PostMapping("")
@@ -54,15 +54,22 @@ public class ScoreController {
 	}
 
 	@PostMapping("/import")
-	public Result<String> importScore(@RequestParam("file") MultipartFile file){
+	public Result<String> importScore(@RequestParam("file") MultipartFile file) throws DataException, FileIOException {
 		scoreService.importScore(file);
 		return Result.success();
 	}
 
-
+	//TODO 把下载和生成文件分离 这个是生成st3文件的！
+	//TODO 对应的Task也要更改！
 	@GetMapping("/export")
-	public void exportScore(HttpServletResponse response){
-		scoreService.exportScore(response);
+	public Result<String> exportScore() throws DataException, FileIOException, DataProcessingException {
+		scoreService.exportScore();
+		return Result.success();
+	}
+
+	@GetMapping("/downloadSt3")
+	public void downloadScoreSt3(HttpServletResponse response){
+		downloadService.downloadGeneral("export", "st3", response);
 	}
 
 	@PutMapping("/newPPT")

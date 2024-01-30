@@ -1,5 +1,8 @@
 package com.aptc.service;
 
+import com.aptc.exception.DataException;
+import com.aptc.exception.DataProcessingException;
+import com.aptc.exception.FileIOException;
 import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserB30VO;
@@ -19,9 +22,9 @@ public interface ScoreService {
 
 	UserPTTVO updatePTT();
 
-	void importScore(MultipartFile file);
+	void importScore(MultipartFile file) throws FileIOException, DataException;
 
-	void exportScore(HttpServletResponse response);
+	void exportScore() throws DataException, FileIOException, DataProcessingException;
 
 	UserPTTVO updateNewPPT(Double newPTT);
 }

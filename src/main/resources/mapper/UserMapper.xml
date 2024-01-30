@@ -18,15 +18,14 @@
     </update>
 
     <insert id="insert">
-        insert into t_user (arc_id, username, password, email)
-        value (#{arcId}, #{username}, #{password}, #{email})
+        insert into t_user (arc_id, username, password)
+        value (#{arcId}, #{username}, #{password})
     </insert>
 
     <select id="count" resultType="java.lang.Integer">
         select count(*) from t_user
         <where>
             <if test="username != null and username != ''">username = #{username}</if>
-            <if test="email != null and email != ''">and email = #{email}</if>
         </where>
     </select>
 </mapper>

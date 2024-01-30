@@ -1,8 +1,7 @@
 package com.aptc.service.impl;
 
 import com.aptc.configuration.JwtProperties;
-import com.aptc.exception.LoginException;
-import com.aptc.exception.UserException;
+import com.aptc.exception.*;
 import com.aptc.mapper.UserMapper;
 import com.aptc.pojo.User;
 import com.aptc.pojo.dto.RegisterDTO;
@@ -33,17 +32,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserLoginVO login(UserLoginDTO userLoginDTO) {
+	public UserLoginVO login(UserLoginDTO userLoginDTO) throws UserAuthException, UserStatusException {
 		String username = userLoginDTO.getUsername();
 		String password = userLoginDTO.getPassword();
 
 		//登录
 		User user = userMapper.getUserByUsername(username);
-		if(user == null) throw new LoginException("用户不存在！");
+		if(user == null) throw new UserAuthException("用户不存在！");
 		String realPassword = user.getPassword();
 		password = DigestUtils.md5DigestAsHex(password.getBytes());
-		if(!password.equals(realPassword)) throw new LoginException("密码错误！");
-		if(user.getStatus() == 0) throw new LoginException("用户状态异常！");
+		if(!password.equals(realPassword)) throw new UserAuthException("密码错误！");
+		if(user.getStatus() == 0) throw new UserStatusException("用户状态异常！");
 
 		//创建JWT令牌
 		Map<String, String> claims = new HashMap<>();
@@ -81,7 +80,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public void updateUserInfo(UserUpdateInfoDTO userUpdateInfoDTO) {
+	public void updateUserInfo(UserUpdateInfoDTO userUpdateInfoDTO) throws UserAuthException {
 		User user = userMapper.getUserByUid(BaseContext.getCurrentId());
 		//更改用户名
 		if(userUpdateInfoDTO.getUsername() != null && !userUpdateInfoDTO.getUsername().isEmpty()){
@@ -92,7 +91,7 @@ public class UserServiceImpl implements UserService {
 			//检验密码是否匹配
 			//TODO: 异常处理复习
 			String oldpw = DigestUtils.md5DigestAsHex(userUpdateInfoDTO.getOldpw().getBytes());
-			if(!oldpw.equals(user.getPassword())) throw new UserException("修改用户信息：旧密码错误");
+			if(!oldpw.equals(user.getPassword())) throw new UserAuthException("修改用户信息：旧密码错误");
 			String newpw = DigestUtils.md5DigestAsHex(userUpdateInfoDTO.getNewpw().getBytes());
 			user.setPassword(newpw);
 		}
