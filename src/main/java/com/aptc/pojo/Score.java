@@ -11,8 +11,10 @@ public class Score {
 	private Integer prsScore;
 	private Integer ftrScore;
 	private Integer bydScore;
+	private Integer etrScore;
 	private Double pstPtt;
 	private Double prsPtt;
 	private Double ftrPtt;
 	private Double bydPtt;
+	private Double etrPtt;
 }

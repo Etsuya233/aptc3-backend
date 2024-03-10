@@ -89,7 +89,6 @@ public class UserServiceImpl implements UserService {
 		//更改密码
 		if(userUpdateInfoDTO.getOldpw() != null && !userUpdateInfoDTO.getOldpw().isEmpty()){
 			//检验密码是否匹配
-			//TODO: 异常处理复习
 			String oldpw = DigestUtils.md5DigestAsHex(userUpdateInfoDTO.getOldpw().getBytes());
 			if(!oldpw.equals(user.getPassword())) throw new UserAuthException("修改用户信息：旧密码错误");
 			String newpw = DigestUtils.md5DigestAsHex(userUpdateInfoDTO.getNewpw().getBytes());

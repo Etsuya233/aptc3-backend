@@ -22,14 +22,16 @@ import com.aptc.utils.ArcaeaUtils;
 import com.aptc.utils.BaseContext;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.Buffer;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -172,6 +174,7 @@ public class ScoreServiceImpl implements ScoreService {
 				if(!dto.getSgid().equals(lastSgid)){
 					scoreList.add(score);
 					score = new Score();
+					System.out.println(dto.getSgid());
 					nowSong = songs.get(Collections.binarySearch(songsgid, dto.getSgid()));
 					score.setSid(nowSong.getSid());
 					score.setUid(uid);
@@ -194,6 +197,9 @@ public class ScoreServiceImpl implements ScoreService {
 						score.setBydScore(dto.getScore());
 						score.setBydPtt(ArcaeaUtils.pptCalc(dto.getScore(), nowSong.getByd()));
 						break;
+					case 4:
+						score.setEtrScore(dto.getScore());
+						score.setEtrPtt(ArcaeaUtils.pptCalc(dto.getScore(), nowSong.getEtr()));
 				}
 			}
 			//去掉第一个加多的
@@ -208,19 +214,10 @@ public class ScoreServiceImpl implements ScoreService {
 		} catch (SQLException e) {
 			throw new DataException("用户导入数据，数据出现异常：", e);
 		}
-
-		//TODO: 半夜处理
-//		//删除文件
-//		try {
-//			deleteFile(filePath);
-//		} catch (IOException e) {
-//			throw new FileIOException("文件删除失败：", e);
-//		}
 	}
 
-	//TODO: 好像有更好的实现形式来着？用那个ResponseEntity！
-	//TODO: 也做个导入导出至CSV
-	//TODO: 复习IO流
+
+
 	@Override
 	public void exportScore() throws FileIOException, DataProcessingException {
 		Integer userId = BaseContext.getCurrentId();
@@ -310,6 +307,62 @@ public class ScoreServiceImpl implements ScoreService {
 		//计算B30和R10
 		UserPTTVO userPTTVO = updatePTT();
 		return userPTTVO;
+	}
+
+	@Override
+	public UserScoreVO getScoreBySgid(String sgid) {
+		return scoreMapper.getScoreBySgid(sgid, BaseContext.getCurrentId());
+	}
+
+	@Override
+	public void exportScoreWithCsv() throws IOException, FileIOException {
+		Integer userId = BaseContext.getCurrentId();
+		//读取成绩
+		List<UserScoreVO> scores = scoreMapper.getAllScore(userId);
+		//导出CSV
+		StringWriter sw = new StringWriter();
+		CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+				.setHeader("sid", "sname",
+						"pst", "pst_score", "pst_ptt",
+						"prs", "prs_score", "prs_ptt",
+						"ftr", "ftr_score", "ftr_ptt",
+						"byd", "byd_score", "byd_ptt",
+						"etr", "etr_score", "etr_ptt")
+				.build();
+		CSVPrinter csvPrinter = new CSVPrinter(sw, csvFormat);
+		for (UserScoreVO score : scores) {
+			csvPrinter.printRecord(
+					score.getSid(), score.getSname(),
+					score.getPst(),
+					score.getPstScore(), score.getPstPtt(),
+					score.getPrs(), score.getPrsScore(), score.getPrsPtt(),
+					score.getFtr(), score.getFtrScore(), score.getFtrPtt(),
+					score.getByd(), score.getBydScore(), score.getBydPtt(),
+					score.getEtr(), score.getEtrScore(), score.getEtrPtt()
+			);
+		}
+		//输出文件
+		String downloadLabel = "export";
+		String fileName = userId + ".csv";
+		try {
+			//使用createDirectories，父目录不存在仍可以创建！
+			Files.createDirectories(Path.of(tempPath + downloadLabel + "/"));
+		} catch(FileAlreadyExistsException e){
+			log.info("export文件夹已存在，无需创建。");
+		} catch (IOException e) {
+			throw new FileIOException("无法创建export文件夹", e);
+		}
+		FileOutputStream fos = new FileOutputStream(tempPath + downloadLabel + "/" + fileName);
+		BufferedOutputStream bos = new BufferedOutputStream(fos);
+		try {
+			csvPrinter.flush();
+			String csvContent = sw.toString();
+			bos.write(csvContent.getBytes());
+			bos.close();
+			csvPrinter.close();
+		} catch (IOException e) {
+			throw new FileIOException("Error writing CSV content to file", e);
+		}
 	}
 
 

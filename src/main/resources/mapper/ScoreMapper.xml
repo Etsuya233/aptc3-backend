@@ -4,7 +4,7 @@
 <mapper namespace="com.aptc.mapper.ScoreMapper">
 
     <select id="userScorePageQuery" resultType="com.aptc.pojo.vo.UserScoreVO">
-        select ts.sname, ts.pid, ts.prs, ts.pst, ts.ftr, ts.byd, tsc.*
+        select ts.sname, ts.pid, ts.prs, ts.pst, ts.ftr, ts.byd, ts.etr, tsc.*
         from t_song ts, t_score tsc
         <where>
             tsc.uid = #{uid} and tsc.sid = ts.sid
@@ -24,6 +24,8 @@
                 <if test="type == 0 and (ftrScore == null or ftrScore == '')">ftr_score = null, ftr_ptt = null,</if>
                 <if test="bydScore != null and bydScore != ''">byd_score = #{bydScore}, byd_ptt = #{bydPtt}</if>
                 <if test="type == 0 and (bydScore == null or bydScore == '')">byd_score = null, byd_ptt = null,</if>
+                <if test="etrScore != null and etrScore != ''">etr_score = #{etrScore}, etr_ptt = #{etrPtt}</if>
+                <if test="type == 0 and (etrScore == null or etrScore == '')">etr_score = null, etr_ptt = null,</if>
                 <if test="true">time = now(),</if>
             </set>
         where scid = #{scid}
@@ -42,6 +44,8 @@
             <if test="ftrPtt != null">ftr_ptt,</if>
             <if test="bydScore != null">byd_score,</if>
             <if test="bydPtt != null">byd_ptt,</if>
+            <if test="etrScore != null">etr_score,</if>
+            <if test="etrPtt != null">etr_ptt,</if>
         </trim>
         VALUES
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -55,6 +59,8 @@
             <if test="ftrPtt != null">#{ftrPtt},</if>
             <if test="bydScore != null">#{bydScore},</if>
             <if test="bydPtt != null">#{bydPtt},</if>
+            <if test="etrScore != null">#{etrScore},</if>
+            <if test="etrPtt != null">#{etrPtt},</if>
         </trim>
     </insert>
 
@@ -70,14 +76,18 @@
         union
         select t_song.sname sname, t_score.sid sid, byd_score score, byd_ptt ptt, time time, '4' difficulty_type, t_song.byd difficulty from t_score
         left join t_song on t_score.sid = t_song.sid where t_score.uid = #{uid} and t_score.byd_score is not null
+        union
+        select t_song.sname sname, t_score.sid sid, byd_score score, byd_ptt ptt, time time, '5' difficulty_type, t_song.etr difficulty from t_score
+        left join t_song on t_score.sid = t_song.sid where t_score.uid = #{uid} and t_score.etr_score is not null
         order by ptt desc
     </select>
 
     <insert id="insertScoreBatch">
-        insert into t_score (uid, sid, pst_score, pst_ptt, prs_score, prs_ptt, ftr_score, ftr_ptt, byd_score, byd_ptt)
+        insert into t_score (uid, sid, pst_score, pst_ptt, prs_score, prs_ptt, ftr_score, ftr_ptt, byd_score, byd_ptt, etr_score, etr_ptt)
         values
         <foreach collection="scores" item="score" separator=",">
-            (#{score.uid},
+            (
+            #{score.uid},
             #{score.sid},
             #{score.pstScore},
             #{score.pstPtt},
@@ -86,14 +96,30 @@
             #{score.ftrScore},
             #{score.ftrPtt},
             #{score.bydScore},
-            #{score.bydPtt})
+            #{score.bydPtt},
+            #{score.etrScore},
+            #{score.etrPtt})
         </foreach>
     </insert>
 
     <select id="getExportSt3List" resultType="com.aptc.pojo.dto.UserExportSt3VO">
-        select tsc.pst_score, tsc.prs_score, tsc.ftr_score, tsc.byd_score, ts.sgid songId
+        select tsc.pst_score, tsc.prs_score, tsc.ftr_score, tsc.byd_score, tsc.etr_score, ts.sgid songId
         from t_score tsc
         left join aptc.t_song ts on tsc.sid = ts.sid
         where uid = #{uid};
+    </select>
+
+    <select id="getScoreBySgid" resultType="com.aptc.pojo.vo.UserScoreVO">
+        select tsc.pst_score, tsc.prs_score, tsc.ftr_score, tsc.byd_score, tsc.etr_score
+        from t_score tsc
+        where tsc.sid = (
+            select ts.sid from t_song ts where ts.sgid = #{param1}
+        ) and uid = #{param2}
+    </select>
+
+    <select id="getAllScore" resultType="com.aptc.pojo.vo.UserScoreVO">
+        select ts.sname, ts.pst, ts.prs, ts.ftr, ts.byd, ts.etr, ts.pid, tsc.*
+        from t_score tsc, t_song ts
+        where tsc.uid = #{userId} and tsc.sid = ts.sid;
     </select>
 </mapper>

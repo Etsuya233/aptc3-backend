@@ -7,10 +7,11 @@ import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
 import com.aptc.pojo.vo.UserB30VO;
 import com.aptc.pojo.vo.UserPTTVO;
+import com.aptc.pojo.vo.UserScoreVO;
 import com.aptc.result.PageResult;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ScoreService {
@@ -27,4 +28,8 @@ public interface ScoreService {
 	void exportScore() throws DataException, FileIOException, DataProcessingException;
 
 	UserPTTVO updateNewPPT(Double newPTT);
+
+	UserScoreVO getScoreBySgid(String sgid);
+
+	void exportScoreWithCsv() throws IOException, FileIOException;
 }

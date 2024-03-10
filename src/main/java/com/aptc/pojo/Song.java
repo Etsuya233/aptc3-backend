@@ -12,5 +12,6 @@ public class Song {
 	private Double prs;
 	private Double ftr;
 	private Double byd;
+	private Double etr;
 	private String sgid;
 }

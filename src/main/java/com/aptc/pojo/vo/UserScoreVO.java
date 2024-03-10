@@ -22,5 +22,8 @@ public class UserScoreVO implements Serializable {
 	private Double byd;
 	private Integer bydScore;
 	private Double bydPtt;
+	private Double etr;
+	private Integer etrScore;
+	private Double etrPtt;
 
 }

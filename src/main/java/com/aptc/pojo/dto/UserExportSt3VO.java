@@ -9,4 +9,5 @@ public class UserExportSt3VO {
 	private String prsScore;
 	private String ftrScore;
 	private String bydScore;
+	private String etrScore;
 }

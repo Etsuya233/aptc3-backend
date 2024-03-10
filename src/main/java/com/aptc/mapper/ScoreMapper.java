@@ -1,7 +1,6 @@
 package com.aptc.mapper;
 
 import com.aptc.pojo.Score;
-import com.aptc.pojo.dto.ImportScoreDTO;
 import com.aptc.pojo.dto.UserExportSt3VO;
 import com.aptc.pojo.dto.UserScoreDTO;
 import com.aptc.pojo.dto.UserScoreQueryDTO;
@@ -28,4 +27,8 @@ public interface ScoreMapper {
 	void insertScoreBatch(List<Score> scores);
 
 	List<UserExportSt3VO> getExportSt3List(Integer uid);
+
+	UserScoreVO getScoreBySgid(String sgid, Integer userId);
+
+	List<UserScoreVO> getAllScore(Integer userId);
 }
