@@ -21,3 +21,10 @@ logging:
 ety:
   path:
     temp:
+  jwt:
+    admin-secret-key:
+    admin-ttl:
+    admin-token-name:
+    user-secret-key:
+    user-ttl:
+    user-token-name:

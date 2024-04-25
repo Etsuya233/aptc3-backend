@@ -365,7 +365,6 @@ public class ScoreServiceImpl implements ScoreService {
 		}
 	}
 
-
 	private void deleteFile(String filePath) throws IOException {
 		// 删除文件
 		Files.delete(Path.of(filePath));
