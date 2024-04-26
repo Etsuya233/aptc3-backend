@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.aptc.mapper.PttHistoryMapper">
+
+    <insert id="saveOrUpdate">
+        insert into t_ptt_history (uid, ptt, b30, r10, time)
+        values (#{uid}, #{ptt}, #{b30}, #{r10}, #{time})
+        on duplicate key update ptt = values(ptt), b30 = values(b30), r10 = values(r10);
+    </insert>
+
+    <select id="getPttHistory" resultType="com.aptc.pojo.PttHistory">
+        select *
+        from t_ptt_history
+        where uid = #{uid}
+        and time &gt;= #{beginTime} and time &lt;= #{endTime}
+        order by time
+    </select>
+
+
+</mapper>

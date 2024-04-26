@@ -1,0 +1,67 @@
+区间：
+一年内都是1天一条。
+两年内2天一条。
+三年内三天一条。
+
+数据：
+
+
+let data = [['2022-12-13', 12], ['2022-12-14', 14]];
+let data1 = [['2022-12-13', 11.4], ['2022-12-14', 13.2]];
+
+option = {
+  tooltip: {
+    trigger: 'axis',
+    position: function (pt) {
+      return [pt[0], '10%'];
+    }
+  },
+  title: {
+    left: 'center',
+    text: 'Large Ara Chart'
+  },
+  toolbox: {
+    feature: {
+      dataZoom: {
+        yAxisIndex: 'none'
+      },
+      restore: {},
+      saveAsImage: {}
+    }
+  },
+  xAxis: {
+    type: 'category',
+    boundaryGap: false
+  },
+  yAxis: {
+    type: 'value',
+    boundaryGap: [0, '100%']
+  },
+  dataZoom: [
+    {
+      type: 'inside',
+      start: 0,
+      end: 10000
+    },
+    {
+      start: 0,
+      end: 10000
+    }
+  ],
+  series: [
+    {
+      name: 'Fake Data',
+      type: 'line',
+      smooth: true,
+      symbol: 'none',
+      data: data
+    },
+    {
+      name: 'Fake Data2',
+      type: 'line',
+      smooth: true,
+      symbol: 'none',
+      data: data1
+    }
+  ]
+};

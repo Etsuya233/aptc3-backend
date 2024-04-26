@@ -3,9 +3,7 @@ package com.aptc.service.impl;
 import com.aptc.exception.DataException;
 import com.aptc.exception.DataProcessingException;
 import com.aptc.exception.FileIOException;
-import com.aptc.mapper.ScoreMapper;
-import com.aptc.mapper.SongMapper;
-import com.aptc.mapper.UserMapper;
+import com.aptc.mapper.*;
 import com.aptc.pojo.Score;
 import com.aptc.pojo.Song;
 import com.aptc.pojo.User;
@@ -26,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,14 +46,16 @@ public class ScoreServiceImpl implements ScoreService {
 	private final ScoreMapper scoreMapper;
 	private final UserMapper userMapper;
 	private final SongMapper songMapper;
+	private final PttHistoryMapper pttHistoryMapper;
 
 	@Value("${ety.path.temp}")
 	private String tempPath;
 
-	public ScoreServiceImpl(ScoreMapper scoreMapper, UserMapper userMapper, SongMapper songMapper) {
+	public ScoreServiceImpl(ScoreMapper scoreMapper, UserMapper userMapper, SongMapper songMapper, PttHistoryMapper pttHistoryMapper) {
 		this.scoreMapper = scoreMapper;
 		this.userMapper = userMapper;
 		this.songMapper = songMapper;
+		this.pttHistoryMapper = pttHistoryMapper;
 	}
 
 	@Override
@@ -88,26 +90,34 @@ public class ScoreServiceImpl implements ScoreService {
 
 	@Override
 	public UserPTTVO updatePTT() {
+		//获取用户和基本信息
 		Integer userId = BaseContext.getCurrentId();
-
 		User user = userMapper.getUserByUid(userId);
-		UserPTTVO userPTTVO = new UserPTTVO();
-		userPTTVO.setPtt(user.getPtt());
+		Double ptt = user.getPtt();
 
+		//计算ptt
 		List<UserB30VO> list = getB30(30);
-		DoubleSummaryStatistics stat = list.stream().collect(Collectors.summarizingDouble(UserB30VO::getPtt));
-		Double b30 = stat.getSum() / 30.0;
-		Double r10 = (40 * user.getPtt() - stat.getSum()) / 10.0;
+		double sum = list.stream()
+				.mapToDouble(UserB30VO::getPtt)
+				.sum();
+		Double b30 = sum / 30.0;
+		Double r10 = (40 * ptt - sum) / 10.0;
 
+		//更新用户ptt
 		user = new User();
 		user.setPttB30(b30);
 		user.setPttR10(r10);
 		user.setUid(userId);
 		userMapper.update(user);
 
+		//更新ptt历史
+		pttHistoryMapper.saveOrUpdate(userId, ptt, b30, r10, LocalDate.now());
+
+		//封装返回值
+		UserPTTVO userPTTVO = new UserPTTVO();
+		userPTTVO.setPtt(ptt);
 		userPTTVO.setPttR10(r10);
 		userPTTVO.setPttB30(b30);
-
 
 		return userPTTVO;
 	}
