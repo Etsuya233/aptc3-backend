@@ -1,10 +1,9 @@
 package com.aptc.service;
 
-import com.aptc.pojo.vo.ChartVO;
 import com.aptc.pojo.vo.PttChartVO;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 public interface PttHistoryService {
-	PttChartVO getPttCharts(String beginTimeStr, String endTimeStr);
+	PttChartVO getPttCharts(LocalDateTime beginDateTime, LocalDateTime endDateTime);
 }
