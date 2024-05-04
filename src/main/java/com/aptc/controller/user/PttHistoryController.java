@@ -27,4 +27,6 @@ public class PttHistoryController {
 										   @RequestParam("endTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime){
 		return Result.success(pttHistoryService.getPttCharts(beginTime, endTime));
 	}
+
+
 }

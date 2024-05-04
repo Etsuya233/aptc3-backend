@@ -3,7 +3,7 @@ package com.aptc.exception;
 /**
  * 数据库操作的异常
  */
-public class DataException extends BaseException{
+public class DataException extends BaseRuntimeException {
 	public static final Integer code = 1;
 	public static final String friendlyMsg = "数据异常！";
 

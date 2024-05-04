@@ -1,6 +1,6 @@
 package com.aptc.exception;
 
-public class DataProcessingException extends BaseException{
+public class DataProcessingException extends BaseRuntimeException {
 	public static final Integer code = 2;
 	public static final String friendlyMsg = "数据处理出现异常！";
 

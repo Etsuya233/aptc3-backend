@@ -12,6 +12,7 @@ import com.aptc.result.PageResult;
 import com.aptc.result.Result;
 import com.aptc.service.DownloadService;
 import com.aptc.service.ScoreService;
+import com.aptc.service.SongService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,8 +24,8 @@ import java.util.List;
 @RequestMapping("/user/score")
 public class ScoreController {
 
-	private ScoreService scoreService;
-	private DownloadService downloadService;
+	private final ScoreService scoreService;
+	private final DownloadService downloadService;
 
 	public ScoreController(ScoreService scoreService, DownloadService downloadService) {
 		this.scoreService = scoreService;
@@ -67,29 +68,16 @@ public class ScoreController {
 		return Result.success();
 	}
 
-	@GetMapping("/importCsv")
+	@PostMapping("/importCsv")
 	public Result<String> importCsv(@RequestParam("file") MultipartFile file){
-		//TODO 实现该功能！
-		return Result.error(500, "功能未实现！");
-	}
-
-	@GetMapping("/export")
-	public Result<String> exportScore() throws DataException, FileIOException, DataProcessingException {
-//		scoreService.exportScore();
-//		return Result.success();
-		return Result.error(500, "功能已下线！");
+		scoreService.importCsv(file);
+		return Result.success();
 	}
 
 	@GetMapping("/exportCsv")
 	public Result<String> exportScoreWithCsv() throws IOException, FileIOException {
 		scoreService.exportScoreWithCsv();
 		return Result.success();
-	}
-
-	@GetMapping("/exportB30Pic")
-	public Result<String> exportB30Pic(){
-		//TODO 实现导出B30图！
-		return Result.error(500, "功能未实现！");
 	}
 
 	@GetMapping("/downloadSt3")

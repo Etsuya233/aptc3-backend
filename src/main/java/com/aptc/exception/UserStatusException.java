@@ -1,6 +1,6 @@
 package com.aptc.exception;
 
-public class UserStatusException extends BaseException{
+public class UserStatusException extends BaseRuntimeException {
 	public static final Integer code = 5;
 	public static final String friendlyMsg = "用户状态异常！";
 

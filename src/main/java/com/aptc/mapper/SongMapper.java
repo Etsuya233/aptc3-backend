@@ -9,8 +9,4 @@ import java.util.List;
 public interface SongMapper {
 	@Select("select * from t_song")
 	List<Song> getAllSong();
-
-	@Update("update t_song set ftr = #{difficulty} where sname = #{sname}")
-	int testChangeFtrDiff(String sname, Double difficulty);
-
 }

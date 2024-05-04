@@ -40,6 +40,7 @@ public class PttHistoryServiceImpl implements PttHistoryService {
 			return PttChartVO.empty();
 		}
 		//封装数据
+		double minValue = Double.MAX_VALUE;
 		LocalDate now = pttHistory.get(0).getTime();
 		List<String> xAxisData = new ArrayList<>();
 		List<Double> pttData = new ArrayList<>();
@@ -50,6 +51,7 @@ public class PttHistoryServiceImpl implements PttHistoryService {
 			if(last == null){
 				last = new PttHistory(userId, 0.0, 0.0, 0.0, null);
 			}
+			minValue = Math.min(last.getPtt(),Math.min(last.getB30(), last.getR10()));
 			while(beginTime.isBefore(now)){
 				String date = beginTime.format(DateTimeFormatter.ISO_DATE);
 				xAxisData.add(date);
@@ -66,6 +68,7 @@ public class PttHistoryServiceImpl implements PttHistoryService {
 			pttData.add(history.getPtt());
 			b30Data.add(history.getB30());
 			r10Data.add(history.getR10());
+			minValue = Math.min(history.getPtt(),Math.min(history.getB30(), history.getR10()));
 			if(pointer == pttHistory.size() - 1){
 				break;
 			}
@@ -78,6 +81,7 @@ public class PttHistoryServiceImpl implements PttHistoryService {
 		if(now.isBefore(endTime)){ //post
 			now = now.plusDays(interval);
 			PttHistory lastHistory = pttHistory.get(pttHistory.size() - 1);
+			minValue = Math.min(lastHistory.getPtt(),Math.min(lastHistory.getB30(), lastHistory.getR10()));
 			while(now.isBefore(endTime) && !now.isAfter(LocalDate.now())){
 				String date = now.format(DateTimeFormatter.ISO_DATE);
 				xAxisData.add(date);
@@ -93,6 +97,7 @@ public class PttHistoryServiceImpl implements PttHistoryService {
 		pttChartVO.setPttData(pttData);
 		pttChartVO.setB30Data(b30Data);
 		pttChartVO.setR10Data(r10Data);
+		pttChartVO.setMinValue((int)(Math.max(Math.floor(minValue) - 1, 0)));
 
 		return pttChartVO;
 	}

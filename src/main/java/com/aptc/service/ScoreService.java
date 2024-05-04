@@ -23,13 +23,13 @@ public interface ScoreService {
 
 	UserPTTVO updatePTT();
 
-	void importScore(MultipartFile file) throws FileIOException, DataException;
-
-	void exportScore() throws DataException, FileIOException, DataProcessingException;
+	void importScore(MultipartFile file);
 
 	UserPTTVO updateNewPPT(Double newPTT);
 
 	UserScoreVO getScoreBySgid(String sgid);
 
-	void exportScoreWithCsv() throws IOException, FileIOException;
+	void exportScoreWithCsv();
+
+	void importCsv(MultipartFile file);
 }

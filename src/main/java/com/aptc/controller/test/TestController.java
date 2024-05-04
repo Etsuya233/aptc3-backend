@@ -1,7 +1,7 @@
 package com.aptc.controller.test;
 
 import com.aptc.service.ScoreService;
-import com.aptc.test.TestService;
+import com.aptc.test.load.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

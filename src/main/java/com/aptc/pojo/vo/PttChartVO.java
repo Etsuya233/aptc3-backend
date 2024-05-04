@@ -13,6 +13,7 @@ public class PttChartVO {
 	private List<Double> pttData;
 	private List<Double> b30Data;
 	private List<Double> r10Data;
+	private Integer minValue;
 
 	public static PttChartVO empty(){
 		PttChartVO pttChartVO = new PttChartVO();

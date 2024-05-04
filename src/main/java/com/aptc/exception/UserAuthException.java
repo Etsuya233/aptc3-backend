@@ -1,6 +1,6 @@
 package com.aptc.exception;
 
-public class UserAuthException extends BaseException{
+public class UserAuthException extends BaseRuntimeException {
 	public static final Integer code = 4;
 	public static final String friendlyMsg = "用户信息不匹配！";
 

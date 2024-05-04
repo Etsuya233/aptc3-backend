@@ -456,7 +456,20 @@ INSERT INTO `t_song` (`sid`, `pid`, `sname`, `alias`, `sgid`, `pst`, `prs`, `ftr
 	(377, 22, 'On And On!! feat. Jenga', NULL, 'onandon', 3, 7, 9.5, NULL, NULL),
 	(378, 18, 'Hotarubi no Yuki', NULL, 'hotarubinoyuki', 3.5, 7, 9.7, NULL, NULL),
 	(379, 4, 'Luna Rossa', NULL, 'lunarossa', 3, 6, 9.7, NULL, NULL),
-	(380, 21, 'The Formula', NULL, 'theformula', 3, 6, 9.3, NULL, NULL);
+	(380, 21, 'The Formula', NULL, 'theformula', 3, 6, 9.3, NULL, NULL),
+    (381, 22, 'HELLOHELL', null, 'hellohell', 2.5, 5, 7.5, null, 9.4),
+    (382, 22, '〇、(o、)、源点', null, 'ichirin', 2.5, 6.5, 9.5, null, null),
+    (383, 22, 'MORNINGLOOM', null, 'morningloom', 3, 6.5, 8.8, null, 9.8),
+    (384, 22, 'Lethal Voltage', null, 'lethalvoltage', 4.5, 7.8, 9.4, null, null),
+    (385, 22, 'Awaken In Ruins', null, 'awakeninruins', 3.5, 7.5, 9.9, null, null),
+    (386, 4, 'MIRINAE', null, 'mirinae', 4.5, 8.3, 10.5, null, null),
+    (387, 22, 'ultradiaxon-N3', null, 'ultradiaxon', 4.5, 8.5, 10.5, null, null),
+    (388, 4, 'Floating World', NULL, 'floatingworld', 3, 7, 9.3, NULL, NULL),
+    (389, 4, 'Chromafill', NULL, 'chromafill', 4, 7, 10, NULL, NULL),
+    (390, 4, 'Désive', NULL, 'desive', 5, 8, 9.9, NULL, 10.8),
+    (391, 22, 'Leave All Behind', NULL, 'leaveallbehind', 2, 5.5, 9.2, NULL, NULL),
+    (392, 22, 'Distorted Fate', NULL, 'distortedfate', 4.5, 7.8, 9.6, NULL, 10.9);
+
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

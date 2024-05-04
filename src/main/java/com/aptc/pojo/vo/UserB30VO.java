@@ -12,4 +12,5 @@ public class UserB30VO {
 	private Double ptt;
 	private String difficulty;
 	private LocalDateTime time;
+	private String sgid;
 }

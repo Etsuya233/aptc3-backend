@@ -22,7 +22,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.Buffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +42,7 @@ import java.nio.file.StandardCopyOption;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -124,26 +129,23 @@ public class ScoreServiceImpl implements ScoreService {
 
 	@Override
 	@Transactional
-	public void importScore(MultipartFile file) throws FileIOException, DataException {
-		if(file.isEmpty()){
+	public void importScore(MultipartFile file){
+		if(file == null || file.isEmpty()){
 			throw new DataException("用户上传数据为空!");
 		}
 
-		//TODO 应该要一个生成图！
 		Integer uid = BaseContext.getCurrentId();
+		log.info("{} 开始导入成绩", uid);
+
 		String downloadLabel = "import";
 		String filePath = tempPath + downloadLabel + "/" + uid + ".st3";
 		String url = "jdbc:sqlite:" + filePath;
 		String sql = "select songId, songDifficulty, score from scores";
 
-
-		//使用createDirectories，父目录不存在仍可以创建！
+		//创建目录
 		try {
 			Files.createDirectories(Path.of(tempPath + downloadLabel + "/"));
-			log.info("import已成功创建");
-		} catch (FileAlreadyExistsException e) {
-			log.info("import文件夹已存在，不再创建");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new FileIOException("import文件夹创建失败：", e);
 		}
 
@@ -184,7 +186,6 @@ public class ScoreServiceImpl implements ScoreService {
 				if(!dto.getSgid().equals(lastSgid)){
 					scoreList.add(score);
 					score = new Score();
-					System.out.println(dto.getSgid());
 					nowSong = songs.get(Collections.binarySearch(songsgid, dto.getSgid()));
 					score.setSid(nowSong.getSid());
 					score.setUid(uid);
@@ -226,86 +227,6 @@ public class ScoreServiceImpl implements ScoreService {
 		}
 	}
 
-
-
-	@Override
-	public void exportScore() throws FileIOException, DataProcessingException {
-		Integer userId = BaseContext.getCurrentId();
-		String downloadLabel = "export";
-		String fileName = userId + ".st3";
-
-		try {
-			//使用createDirectories，父目录不存在仍可以创建！
-			Files.createDirectories(Path.of(tempPath + downloadLabel + "/"));
-		} catch(FileAlreadyExistsException e){
-			log.info("export文件夹已存在，无需创建。");
-		} catch (IOException e) {
-			throw new FileIOException("无法创建export文件夹", e);
-		}
-
-		try {
-			Files.deleteIfExists(Path.of(tempPath + downloadLabel + "/" + fileName));
-		} catch (IOException e) {
-			throw new FileIOException("无法删除原有文件", e);
-		}
-
-		String url = "jdbc:sqlite:" + tempPath + downloadLabel + "/" + fileName;
-		String sqlForCreate = "CREATE TABLE \"scores\" (\n" +
-				"\t\"id\" INTEGER NOT NULL,\n" +
-				"\t\"version\" INTEGER NULL,\n" +
-				"\t\"score\" INTEGER NULL,\n" +
-				"\t\"shinyPerfectCount\" INTEGER NULL,\n" +
-				"\t\"perfectCount\" INTEGER NULL,\n" +
-				"\t\"nearCount\" INTEGER NULL,\n" +
-				"\t\"missCount\" INTEGER NULL,\n" +
-				"\t\"date\" INTEGER NULL,\n" +
-				"\t\"songId\" TEXT NULL,\n" +
-				"\t\"songDifficulty\" INTEGER NULL,\n" +
-				"\t\"modifier\" INTEGER NULL,\n" +
-				"\t\"health\" INTEGER NULL,\n" +
-				"\t\"ct\" INTEGER NULL,\n" +
-				"\tPRIMARY KEY (\"id\")\n" +
-				")\n" +
-				";";
-
-		try {
-			Connection connection = DriverManager.getConnection(url);
-
-			//创建表
-			PreparedStatement createStatement = connection.prepareStatement(sqlForCreate);
-			createStatement.execute();
-
-			//获取数据
-			UserScoreQueryDTO userScoreQueryDTO = new UserScoreQueryDTO();
-			userScoreQueryDTO.setUid(userId);
-			userScoreQueryDTO.setPageSize(1000);
-			userScoreQueryDTO.setPageNum(1);
-			List<UserExportSt3VO> scores = scoreMapper.getExportSt3List(userId);
-
-			//导入数据
-			if(scores.isEmpty()) {
-				return;
-			}
-
-			int cnt = 1;
-			StringBuilder sb = new StringBuilder("insert into scores (id, score, songId, songDifficulty) values ");
-			for(UserExportSt3VO a: scores){
-				if(a.getPstScore() != null) sb.append("(").append(cnt++).append(',').append(a.getPstScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("0").append("),");
-				if(a.getPrsScore() != null) sb.append("(").append(cnt++).append(',').append(a.getPrsScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("1").append("),");
-				if(a.getFtrScore() != null) sb.append("(").append(cnt++).append(',').append(a.getFtrScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("2").append("),");
-				if(a.getBydScore() != null) sb.append("(").append(cnt++).append(',').append(a.getBydScore()).append(",").append('\'').append(a.getSongId()).append('\'').append(",").append("3").append("),");
-			}
-			sb.deleteCharAt(sb.length() - 1);
-			sb.append(";");
-			System.out.println(sb);
-			PreparedStatement preparedStatement = connection.prepareStatement(sb.toString());
-			preparedStatement.execute();
-
-		} catch (SQLException e) {
-			throw new DataProcessingException("导出数据时出现异常", e);
-		}
-	}
-
 	@Override
 	public UserPTTVO updateNewPPT(Double newPTT) {
 		//更新新的PPT
@@ -315,8 +236,7 @@ public class ScoreServiceImpl implements ScoreService {
 		user.setPtt(newPTT);
 		userMapper.update(user);
 		//计算B30和R10
-		UserPTTVO userPTTVO = updatePTT();
-		return userPTTVO;
+		return updatePTT();
 	}
 
 	@Override
@@ -325,46 +245,52 @@ public class ScoreServiceImpl implements ScoreService {
 	}
 
 	@Override
-	public void exportScoreWithCsv() throws IOException, FileIOException {
+	public void exportScoreWithCsv(){
 		Integer userId = BaseContext.getCurrentId();
 		//读取成绩
 		List<UserScoreVO> scores = scoreMapper.getAllScore(userId);
-		//导出CSV
+		Map<Integer, UserScoreVO> scoreMap = scores.stream()
+				.collect(Collectors.toMap(UserScoreVO::getSid, Function.identity()));
+		//初始化CSV
 		StringWriter sw = new StringWriter();
 		CSVFormat csvFormat = CSVFormat.EXCEL.builder()
-				.setHeader("sid", "sname",
+				.setHeader("sid", "sgid", "sname",
 						"pst", "pst_score", "pst_ptt",
 						"prs", "prs_score", "prs_ptt",
 						"ftr", "ftr_score", "ftr_ptt",
 						"byd", "byd_score", "byd_ptt",
 						"etr", "etr_score", "etr_ptt")
 				.build();
-		CSVPrinter csvPrinter = new CSVPrinter(sw, csvFormat);
-		for (UserScoreVO score : scores) {
-			csvPrinter.printRecord(
-					score.getSid(), score.getSname(),
-					score.getPst(),
-					score.getPstScore(), score.getPstPtt(),
-					score.getPrs(), score.getPrsScore(), score.getPrsPtt(),
-					score.getFtr(), score.getFtrScore(), score.getFtrPtt(),
-					score.getByd(), score.getBydScore(), score.getBydPtt(),
-					score.getEtr(), score.getEtrScore(), score.getEtrPtt()
-			);
+		CSVPrinter csvPrinter = null;
+		try {
+			csvPrinter = new CSVPrinter(sw, csvFormat);
+			//查询所有歌曲
+			List<Song> songs = songMapper.getAllSong();
+			for(Song song: songs){
+				UserScoreVO score = scoreMap.get(song.getSid());
+				if(score == null) score = UserScoreVO.empty();
+				csvPrinter.printRecord(
+						song.getSid(), song.getSgid(), song.getSname(),
+						song.getPst(), score.getPstScore(), score.getPstPtt(),
+						song.getPrs(), score.getPrsScore(), score.getPrsPtt(),
+						song.getFtr(), score.getFtrScore(), score.getFtrPtt(),
+						song.getByd(), score.getBydScore(), score.getBydPtt(),
+						song.getEtr(), score.getEtrScore(), score.getEtrPtt()
+				);
+			}
+		} catch (IOException e) {
+			throw new FileIOException("CSV处理异常！", e);
 		}
 		//输出文件
 		String downloadLabel = "export";
 		String fileName = userId + ".csv";
 		try {
-			//使用createDirectories，父目录不存在仍可以创建！
 			Files.createDirectories(Path.of(tempPath + downloadLabel + "/"));
-		} catch(FileAlreadyExistsException e){
-			log.info("export文件夹已存在，无需创建。");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new FileIOException("无法创建export文件夹", e);
 		}
-		FileOutputStream fos = new FileOutputStream(tempPath + downloadLabel + "/" + fileName);
-		BufferedOutputStream bos = new BufferedOutputStream(fos);
-		try {
+		try(FileOutputStream fos = new FileOutputStream(tempPath + downloadLabel + "/" + fileName);
+			BufferedOutputStream bos = new BufferedOutputStream(fos)) {
 			csvPrinter.flush();
 			String csvContent = sw.toString();
 			bos.write(csvContent.getBytes());
@@ -375,8 +301,72 @@ public class ScoreServiceImpl implements ScoreService {
 		}
 	}
 
-	private void deleteFile(String filePath) throws IOException {
-		// 删除文件
-		Files.delete(Path.of(filePath));
+	@Override
+	public void importCsv(MultipartFile file) {
+		if(file == null || file.isEmpty()){
+			throw new DataException("用户上传数据出错！");
+		}
+
+		//基本数据
+		Integer userId = BaseContext.getCurrentId();
+
+		//初始化CSV格式
+		CSVFormat csvFormat = CSVFormat.EXCEL.builder()
+				.setHeader("sid", "sgid", "sname",
+						"pst", "pst_score", "pst_ptt",
+						"prs", "prs_score", "prs_ptt",
+						"ftr", "ftr_score", "ftr_ptt",
+						"byd", "byd_score", "byd_ptt",
+						"etr", "etr_score", "etr_ptt")
+				.build();
+		//解析CSV
+		try(InputStream is = file.getInputStream()){
+			CSVParser parser = CSVParser.parse(is, StandardCharsets.UTF_8, csvFormat);
+			List<CSVRecord> records = parser.getRecords();
+			List<Score> scoreList = records.stream().filter(r -> r != null && r.getRecordNumber() != 1
+							&& (!r.get(4).isEmpty() || !r.get(7).isEmpty() || !r.get(10).isEmpty() || !r.get(13).isEmpty() || !r.get(16).isEmpty()))
+					.map(r -> {
+						Score score = new Score();
+						score.setUid(userId);
+						score.setSid(Integer.parseInt(r.get(0)));
+						if (!r.get((4)).isEmpty()) {
+							int s = Integer.parseInt(r.get(4));
+							double d = Double.parseDouble(r.get(3));
+							score.setPstScore(s);
+							score.setPstPtt(ArcaeaUtils.pptCalc(s, d));
+						}
+						if (!r.get(7).isEmpty()) {
+							int s = Integer.parseInt(r.get(7));
+							double d = Double.parseDouble(r.get(6));
+							score.setPrsScore(s);
+							score.setPrsPtt(ArcaeaUtils.pptCalc(s, d));
+						}
+						if (!r.get(10).isEmpty()) {
+							int s = Integer.parseInt(r.get(10));
+							double d = Double.parseDouble(r.get(9));
+							score.setFtrScore(s);
+							score.setFtrPtt(ArcaeaUtils.pptCalc(s, d));
+						}
+						if (!r.get(13).isEmpty()) {
+							int s = Integer.parseInt(r.get(13));
+							double d = Double.parseDouble(r.get(12));
+							score.setFtrScore(s);
+							score.setFtrPtt(ArcaeaUtils.pptCalc(s, d));
+						}
+						if (!r.get(16).isEmpty()) {
+							int s = Integer.parseInt(r.get(16));
+							double d = Double.parseDouble(r.get(15));
+							score.setFtrScore(s);
+							score.setFtrPtt(ArcaeaUtils.pptCalc(s, d));
+						}
+						return score;
+					}).toList();
+			scoreMapper.deleteAllByUid(userId);
+			scoreMapper.insertScoreBatch(scoreList);
+		} catch (Exception e) {
+			throw new RuntimeException("导入CSV异常！", e);
+		}
 	}
+
+
 }

@@ -26,4 +26,19 @@ public class UserScoreVO implements Serializable {
 	private Integer etrScore;
 	private Double etrPtt;
 
+	public static UserScoreVO empty(){
+		UserScoreVO userScoreVO = new UserScoreVO();
+		userScoreVO.setPstScore(0);
+		userScoreVO.setPrsScore(0);
+		userScoreVO.setFtrScore(0);
+		userScoreVO.setBydScore(0);
+		userScoreVO.setEtrScore(0);
+		userScoreVO.setPstPtt(0.0);
+		userScoreVO.setPrsPtt(0.0);
+		userScoreVO.setFtrPtt(0.0);
+		userScoreVO.setBydPtt(0.0);
+		userScoreVO.setEtrPtt(0.0);
+		return userScoreVO;
+	}
+
 }
